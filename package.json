@@ -1,0 +1,16 @@
+{
+  "name": "cv-analyzer-vcs",
+  "version": "1.0.0",
+  "description": "CV Analizatorius su Gemini AI - Vilnius Coding School lead magnet",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "vercel": "^37.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
