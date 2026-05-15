@@ -1,39 +1,33 @@
 // api/analyze.js
-// Vercel Serverless Function - runs on the server, API key is NEVER exposed to browser
-//
-// HOW IT WORKS:
-// 1. Browser sends CV text + job target to POST /api/analyze
-// 2. This function receives it, calls Gemini API with your secret key
-// 3. Returns analysis back to browser
-// 4. Browser never sees your API key
+// Vercel Serverless Function - API key is NEVER exposed to browser
 
 export default async function handler(req, res) {
-  // LAIKINAS TESTAS - ištrink po patikrinimo
-const testKey = process.env.GEMINI_API_KEY;
-console.log('KEY exists:', !!testKey, 'Length:', testKey?.length);
-  // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // CORS headers - allow your frontend domain
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   try {
-    const { cvText, targetAreas, name, email } = req.body;
+    const { cvText, targetFields, name, email } = req.body;
 
-    // Basic validation
+    // Build role string from targetFields array
+    const role = Array.isArray(targetFields) && targetFields.length > 0
+      ? targetFields.join(', ')
+      : 'IT / technologijų sritis';
+
     if (!cvText || cvText.length < 50) {
       return res.status(400).json({ error: 'CV text is too short' });
     }
 
-    // ── GEMINI API CALL ──────────────────────────────────────
-    // process.env.GEMINI_API_KEY is set in Vercel dashboard (never in code!)
     const GEMINI_KEY = process.env.GEMINI_API_KEY;
+    if (!GEMINI_KEY) {
+      return res.status(500).json({ error: 'API key not configured' });
+    }
 
-    const prompt = buildPrompt(cvText, targetAreas);
+    const prompt = buildPrompt(cvText, role);
 
     const geminiResponse = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
@@ -44,37 +38,34 @@ console.log('KEY exists:', !!testKey, 'Length:', testKey?.length);
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: {
             temperature: 0.7,
-            maxOutputTokens: 1024,
-            responseMimeType: 'application/json' // Ask Gemini to return JSON
+            maxOutputTokens: 1500
           }
         })
       }
     );
 
     if (!geminiResponse.ok) {
-      throw new Error(`Gemini API error: ${geminiResponse.status}`);
+      const errText = await geminiResponse.text();
+      throw new Error(`Gemini API error: ${geminiResponse.status} - ${errText}`);
     }
 
     const geminiData = await geminiResponse.json();
-
-    // Extract text from Gemini response
     const rawText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!rawText) throw new Error('Empty response from Gemini');
 
-    // Parse JSON from Gemini
-    const analysis = JSON.parse(rawText);
+    // Clean markdown if Gemini wraps in backticks
+    const cleaned = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+    const analysis = JSON.parse(cleaned);
 
-    // ── OPTIONAL: Save lead to Google Sheets ────────────────
-    // Reuse your existing Apps Script webhook
+    // Optional: save to Google Sheets
     if (process.env.SHEETS_WEBHOOK_URL && email) {
       const params = new URLSearchParams({
         name: name || '',
         email: email,
-        targetRole: targetRole || '',
+        targetRole: role,
         score: analysis.overallScore || '',
         date: new Date().toLocaleString('lt-LT')
       });
-      // Fire and forget - don't wait for response
       fetch(process.env.SHEETS_WEBHOOK_URL + '?' + params.toString()).catch(() => {});
     }
 
@@ -82,72 +73,36 @@ console.log('KEY exists:', !!testKey, 'Length:', testKey?.length);
 
   } catch (error) {
     console.error('Analysis error:', error);
-    return res.status(500).json({
-      error: 'Analysis failed',
-      message: error.message
-    });
+    return res.status(500).json({ error: 'Analysis failed', message: error.message });
   }
 }
 
-// ── PROMPT BUILDER ───────────────────────────────────────────
-// This is the most important part - good prompt = good results
-function buildPrompt(cvText, targetAreas) {
-  const areas = Array.isArray(targetAreas) && targetAreas.length > 0
-    ? targetAreas.join(', ')
-    : 'bendra darbo rinka';
+function buildPrompt(cvText, role) {
+  return `Tu esi profesionalus karjeros konsultantas ir CV analizuotojas.
+Isanalizuok si CV ir pateik strukturuota ivertinima.
 
-  return `
-Tu esi profesionalus karjeros konsultantas ir CV analizuotojas.
-Išanalizuok šį CV ir pateik struktūruotą įvertinimą.
-
-SRITYS, KURIOS DOMINA ŽMOGŲ: ${areas}
-
-Atkreipk dėmesį: žmogus nebūtinai yra IT specialistas.
-Analizė turi būti pritaikyta būtent šioms sritims ir prieinama ne IT žmonėms.
+TIKSLINE SRITIS: ${role}
 
 CV TURINYS:
 ${cvText}
 
-Grąžink TIKTAI JSON objektą (be jokio papildomo teksto, be markdown) šia struktūra:
+Graizink TIKTAI JSON objekta (be jokio papildomo teksto, be markdown) sia struktura:
 
 {
-  "overallScore": <skaičius 0-100>,
-  "scoreLabel": <"Silpnas" | "Vidutinis" | "Geras" | "Puikus">,
-  "summary": "<2-3 sakiniai bendras įvertinimas lietuvių kalba>",
-  "strengths": [
-    "<stiprybė 1>",
-    "<stiprybė 2>",
-    "<stiprybė 3>"
-  ],
-  "weaknesses": [
-    "<silpnybė 1>",
-    "<silpnybė 2>",
-    "<silpnybė 3>"
-  ],
+  "overallScore": <skaicius 0-100>,
+  "scoreLabel": "<Silpnas | Vidutinis | Geras | Puikus>",
+  "summary": "<2-3 sakiniai bendras ivertinimas lietuviu kalba>",
+  "strengths": ["<stiprybe 1>", "<stiprybe 2>", "<stiprybe 3>"],
+  "weaknesses": ["<silpnybe 1>", "<silpnybe 2>", "<silpnybe 3>"],
   "improvements": [
-    {
-      "title": "<trumpas pavadinimas>",
-      "description": "<konkretus patarimas kaip pagerinti>"
-    },
-    {
-      "title": "<trumpas pavadinimas>",
-      "description": "<konkretus patarimas kaip pagerinti>"
-    },
-    {
-      "title": "<trumpas pavadinimas>",
-      "description": "<konkretus patarimas kaip pagerinti>"
-    }
+    {"title": "<pavadinimas>", "description": "<konkretus patarimas>"},
+    {"title": "<pavadinimas>", "description": "<konkretus patarimas>"},
+    {"title": "<pavadinimas>", "description": "<konkretus patarimas>"}
   ],
-  "missingSkills": [
-    "<trūkstamas įgūdis 1 ${role} srityje>",
-    "<trūkstamas įgūdis 2>",
-    "<trūkstamas įgūdis 3>"
-  ],
-  "aiReadiness": <skaičius 0-100, kiek šis CV parengtas AI šiuolaikinei rinkai>,
-  "recommendation": "<1 aiški rekomendacija ką daryti toliau>"
+  "missingSkills": ["<trukstamas igudis 1>", "<igudis 2>", "<igudis 3>"],
+  "aiReadiness": <skaicius 0-100>,
+  "recommendation": "<1 konkreti rekomendacija ka daryti toliau>"
 }
 
-Visos reikšmės turi būti lietuvių kalba.
-Būk konkretus ir praktiškas, ne abstraktus.
-`;
+Visos reiksmes turi buti lietuviu kalba. Buk konkretus ir praktiskas.`;
 }
