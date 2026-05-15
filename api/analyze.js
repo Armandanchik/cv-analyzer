@@ -8,6 +8,9 @@
 // 4. Browser never sees your API key
 
 export default async function handler(req, res) {
+  // LAIKINAS TESTAS - ištrink po patikrinimo
+const testKey = process.env.GEMINI_API_KEY;
+console.log('KEY exists:', !!testKey, 'Length:', testKey?.length);
   // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
