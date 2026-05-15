@@ -176,6 +176,71 @@
 
   @media(max-width:540px){.main{padding:32px 16px 60px;}.step1-card,.step2-card{padding:24px;}.fields-grid{grid-template-columns:1fr 1fr;}}
   @media(max-width:380px){.fields-grid{grid-template-columns:1fr;}}
+
+  /* VCS RECOMMENDATIONS */
+  .vcs-rec-card {
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 22px 24px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+    transition: border-color 0.2s;
+  }
+  .vcs-rec-card:hover { border-color: var(--blue); }
+  .vcs-rec-card.career-change { border-left: 4px solid var(--blue); }
+  .vcs-rec-card.skill-upgrade { border-left: 4px solid var(--green-dark); }
+  .vcs-rec-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 100px;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+  }
+  .vcs-rec-badge.career { background: var(--blue-light); color: var(--blue); }
+  .vcs-rec-badge.skill { background: var(--green-light); color: var(--green-dark); }
+  .vcs-rec-body { flex: 1; min-width: 200px; }
+  .vcs-rec-title { font-size: 16px; font-weight: 800; color: var(--navy); margin-bottom: 6px; }
+  .vcs-rec-reason { font-size: 14px; color: var(--grey); line-height: 1.55; margin-bottom: 12px; }
+  .vcs-rec-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--blue);
+    color: #fff;
+    font-family: 'Barlow', sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    padding: 9px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .vcs-rec-link:hover { background: var(--blue-dark); }
+  .vcs-rec-link.skill-link { background: var(--green-dark); }
+  .vcs-rec-link.skill-link:hover { background: #1f6b1f; }
+  .vcs-recs-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--navy);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 </style>
 </head>
 <body>
@@ -263,7 +328,7 @@
       </div>
 
       <!-- Custom field -->
-      <div class="or-divider">arba įrašyk savo sritį</div>
+      <div class="or-divider">arba įrašyk savo sritį (jei nėra sąraše)</div>
       <div class="custom-field-wrap">
         <input class="custom-input" type="text" id="customField" placeholder="Pvz.: Buhalterija ir finansai, Medicina, Teisė...">
         <button class="btn-custom-add" id="btnAddCustom">Pridėti +</button>
@@ -297,7 +362,7 @@
       </div>
 
       <div class="card-title">&#128196; Įkelk savo CV</div>
-      <div class="card-sub" style="margin-bottom:24px;">PDF, Word ar paprastas tekstas – AI pats supras struktūrą.</div>
+      <div class="card-sub" style="margin-bottom:24px;">Įkelk CV failą <strong>arba</strong> įkopijuok tekstą – vieno iš jų pakanka. Abiejų kartu – tikslesnė analizė.</div>
 
       <!-- Upload zone -->
       <div class="upload-zone" id="uploadZone">
@@ -310,9 +375,12 @@
       <div class="divider">arba įkopijuokite tekstą</div>
 
       <div class="form-group">
-        <label class="field-label" for="cvText">CV tekstas</label>
-        <textarea class="field-textarea" id="cvText" placeholder="Jonas Jonaitis&#10;El. paštas: jonas@gmail.com | Tel.: +370 600 00000&#10;&#10;Darbinė patirtis:&#10;2020–2024 – Vadybininkas, UAB „ABC“..."></textarea>
-        <div class="char-count"><span id="charCount">0</span> simbolių (reikia bent 100)</div>
+        <label class="field-label" for="cvText">CV tekstas <span style="color:var(--grey);font-weight:500;text-transform:none;font-size:11px;">(nebūtina, jei įkėlei failą)</span></label>
+        <textarea class="field-textarea" id="cvText" placeholder="Jei neturi PDF formato failo – įkopijuok savo CV tekstą čia.
+
+Taip pat gali papildyti informacija apie save, ko nėra CV:
+pvz. kokias technologijas naudoji, kokie tavo tikslai..."></textarea>
+        <div class="char-count"><span id="charCount">0</span> simbolių</div>
       </div>
 
       <!-- Contacts -->
@@ -385,21 +453,27 @@
       <div id="improvementsList"></div>
     </div>
     <div class="ai-readiness">
-      <div class="ai-readiness-title">&#129302; AI Erės Parengties Rodiklis</div>
+      <div class="ai-readiness-title">&#129302; Pasirengimas AI erai</div>
       <div class="ai-bar-wrap">
         <div class="ai-bar-bg"><div class="ai-bar-fill" id="aiBarFill" style="width:0%"></div></div>
         <div class="ai-score-label" id="aiScoreLabel">0%</div>
       </div>
-      <p id="aiReadinessText"></p>
+      <p id="aiReadinessText" style="font-size:14px;color:#4B5063;margin-top:10px;line-height:1.55;"></p>
     </div>
     <div class="missing-skills">
       <div class="missing-skills-title">&#9888; Trūkstami įgūdžiai</div>
       <div class="skill-tags" id="skillTags"></div>
     </div>
+
+    <!-- VCS RECOMMENDATIONS -->
+    <div id="vcsRecsSection" style="margin-bottom:20px;display:none;">
+      <div id="vcsRecsList"></div>
+    </div>
+
     <div class="cta-card">
-      <div class="cta-title">Nori pagreitinti karjeros keitimą?</div>
-      <div class="cta-sub" id="ctaRecommendation">Pasikalbėk su VCS specialistu apie konkrečius žingsnius.</div>
-      <a class="btn-cta" href="https://calendly.com/vcsmokymai/11" target="_blank">&#128197; Nemokama konsultacija</a>
+      <div class="cta-title">Nori pasikalbėti su specialistu?</div>
+      <div class="cta-sub">Nemokama karjeros konsultacija – aptarsime konkrečius žingsnius būtent tau.</div>
+      <a class="btn-cta" href="https://calendly.com/vcsmokymai/11" target="_blank">&#128197; Registruotis nemokamai</a>
     </div>
     <div style="text-align:center">
       <button class="btn-restart" id="btnRestart">&#8617; Analizuoti kitą CV</button>
@@ -548,8 +622,8 @@ async function analyze() {
   var email = document.getElementById('leadEmail').value.trim();
   var name = document.getElementById('leadName').value.trim();
 
-  if (cvText.length < 100) {
-    showError('Prašome įvesti bent 100 simbolių CV teksto.');
+  if (cvText.length < 30) {
+    showError('Per mažai informacijos. Įkelkite failą arba įveskite bent kelias eilutes apie save.');
     return;
   }
   if (!email || email.indexOf('@') < 1) {
@@ -616,19 +690,46 @@ function showResults(a) {
     return '<div class="improvement-item"><div class="imp-num">'+(i+1)+'</div><div><div class="imp-title">'+item.title+'</div><div class="imp-desc">'+item.description+'</div></div></div>';
   }).join('');
 
-  var ai = a.aiReadiness || 0;
+  // AI Readiness - use aiReadinessScore and aiReadinessComment from API
+  var ai = a.aiReadinessScore || a.aiReadiness || 0;
   setTimeout(function() { document.getElementById('aiBarFill').style.width = ai + '%'; }, 400);
   document.getElementById('aiScoreLabel').textContent = ai + '%';
-  document.getElementById('aiReadinessText').textContent =
-    ai >= 75 ? 'Puiku! Tavo CV atspindi modernias AI eros kompetencijas.' :
-    ai >= 50 ? 'Geras pagrindas, tačiau AI įgūdžiai galėtų būti labiau išreikšti.' :
-    ai >= 25 ? 'Rekomenduojame papildyti CV AI ir skaitmeninėmis kompetencijomis.' :
-    'Laikas pradėti! AI įgūdžiai tampa būtinybė modernėje darbo rinkoje.';
+  // Use AI-generated comment if available, otherwise fallback
+  var aiComment = a.aiReadinessComment ||
+    (ai >= 75 ? 'Tavo CV atspindi stiprų skaitmeninį kompetencijų lygį – labai geras pagrindas AI erai.' :
+     ai >= 50 ? 'Turi geru įgūdžių, tačiau AI įrankiai dar galėtų būti labiau integruoti į kasdienį darbą.' :
+     ai >= 25 ? 'Matome potencialą – papildę CV AI ir skaitmeninėmis kompetencijomis, atsiverš daug naujų galimybių.' :
+     'AI ir skaitmeninės kompetencijos šiandien tampa būtinybė – dabar pats geriausias metas pradėti.');
+  document.getElementById('aiReadinessText').textContent = aiComment;
 
   document.getElementById('skillTags').innerHTML = (a.missingSkills||[]).map(function(s){
     return '<span class="skill-tag">'+s+'</span>';
   }).join('');
-  document.getElementById('ctaRecommendation').textContent = a.recommendation || 'Pasikalbėk su VCS specialistu apie konkrečius žingsnius karjeros keitimui.';
+
+  // VCS Recommendations
+  var recs = a.vcsRecommendations || [];
+  var recsSection = document.getElementById('vcsRecsSection');
+  var recsList = document.getElementById('vcsRecsList');
+  if (recs.length > 0) {
+    var title = a.shouldChangeCareer
+      ? '&#127891; Rekomenduojami VCS mokymai karjeros keitimui'
+      : '&#9889; Rekomenduojami VCS mokymai tavo srities gilinimui';
+    recsList.innerHTML = '<div class="vcs-recs-title">' + title + '</div>' +
+      recs.map(function(r) {
+        var isSkill = r.type === 'skill_upgrade';
+        return '<div class="vcs-rec-card ' + (isSkill ? 'skill-upgrade' : 'career-change') + '">' +
+          '<div class="vcs-rec-body">' +
+          '<div><span class="vcs-rec-badge ' + (isSkill ? 'skill' : 'career') + '">' +
+          (isSkill ? '&#9989; Gilinti įgūdžius' : '&#128640; Karjeros keitimas') + '</span></div>' +
+          '<div class="vcs-rec-title">' + r.title + '</div>' +
+          '<div class="vcs-rec-reason">' + r.reason + '</div>' +
+          '<a class="vcs-rec-link ' + (isSkill ? 'skill-link' : '') + '" href="' + r.courseUrl + '" target="_blank">Peržiūrėti kursą →</a>' +
+          '</div></div>';
+      }).join('');
+    recsSection.style.display = 'block';
+  } else {
+    recsSection.style.display = 'none';
+  }
 }
 
 function showError(msg) {
