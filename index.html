@@ -394,10 +394,11 @@ pvz. kokias technologijas naudoji, kokie tavo tikslai..."></textarea>
           <input class="field-input" type="email" id="leadEmail" placeholder="jonas@gmail.com">
         </div>
       </div>
-      <div>
-          <label class="field-label" for="leadPhone">Tel. Numeris *</label>
-          <input class="field-input" type="phone" id="leadPhone" placeholder="+37060000000">
-        </div>
+      <div class="form-group">
+        <label class="field-label" for="leadPhone">Telefono numeris *</label>
+        <input class="field-input" type="tel" id="leadPhone" placeholder="+370 600 00000" autocomplete="tel">
+        <div class="field-error" id="phoneError" style="display:none;color:#E53E3E;font-size:12px;font-weight:600;margin-top:4px;">Prašome įvesti telefono numerį</div>
+      </div>
       </div>
 
       <div class="privacy-note">
@@ -626,6 +627,7 @@ async function analyze() {
   var cvText = document.getElementById('cvText').value.trim();
   var email = document.getElementById('leadEmail').value.trim();
   var name = document.getElementById('leadName').value.trim();
+  var phone = document.getElementById('leadPhone') ? document.getElementById('leadPhone').value.trim() : '';
 
   if (cvText.length < 30) {
     showError('Per mažai informacijos. Įkelkite failą arba įveskite bent kelias eilutes apie save.');
@@ -633,6 +635,10 @@ async function analyze() {
   }
   if (!email || email.indexOf('@') < 1) {
     showError('Prašome įvesti teisingą el. paštą.');
+    return;
+  }
+  if (!phone) {
+    showError('Prašome įvesti telefono numerį.');
     return;
   }
 
@@ -650,7 +656,8 @@ async function analyze() {
         cvText: cvText,
         targetFields: selectedFields,
         name: name,
-        email: email
+        email: email,
+        phone: phone
       })
     });
 
