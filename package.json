@@ -2,7 +2,6 @@
   "name": "cv-analyzer-vcs",
   "version": "1.0.0",
   "description": "CV Analizatorius su Gemini AI - Vilnius Coding School lead magnet",
-  "type": "module",
   "scripts": {
     "dev": "vercel dev",
     "deploy": "vercel --prod"
