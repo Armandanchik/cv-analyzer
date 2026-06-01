@@ -3,443 +3,1157 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CV Analizatorius su AI – Vilnius Coding School</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --blue:#3D3FE8;--blue-dark:#1A1B6E;--blue-light:#EAEBFF;
-    --navy:#1A1B4B;--green:#7EE07E;--green-light:#D4F5D4;--green-dark:#2E8B2E;
-    --grey:#6B7280;--grey-light:#F4F5F7;--white:#FFFFFF;--border:#E5E7EB;--radius:14px;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:#ffffff;color:#111;font-family:'Barlow',sans-serif;min-height:100vh;}
-
-  .topbar{background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:2px solid var(--border);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-  .logo{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:900;color:var(--navy);letter-spacing:-0.01em;text-transform:uppercase;}
-  .logo img{width:36px;height:36px;border-radius:8px;object-fit:cover;}
-  .nav-badge{background:var(--blue-light);color:var(--blue);font-size:12px;font-weight:700;padding:5px 14px;border-radius:100px;letter-spacing:0.05em;text-transform:uppercase;}
-
-  /* HERO */
-  .hero{background:var(--navy);padding:72px 32px 64px;text-align:center;}
-  .hero h1{font-size:clamp(1.8rem,5vw,3.2rem);font-weight:900;color:#fff;line-height:1.08;letter-spacing:-0.025em;margin-bottom:16px;text-transform:uppercase;}
-  .hero h1 em{font-style:normal;color:var(--green);}
-  .hero-sub{color:rgba(255,255,255,0.72);font-size:16px;max-width:520px;margin:0 auto 32px;line-height:1.6;}
-  .hero-pills{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;}
-  .hero-pill{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.75);font-size:13px;font-weight:600;}
-  .pill-dot{width:7px;height:7px;border-radius:50%;background:var(--green);}
-
-  /* STEPPER */
-  .stepper{display:flex;align-items:center;justify-content:center;gap:0;max-width:360px;margin:0 auto 36px;}
-  .step-item{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;}
-  .step-circle{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;transition:all 0.3s;}
-  .step-circle.active{background:var(--green);color:var(--navy);}
-  .step-circle.done{background:rgba(126,224,126,0.3);color:var(--green);}
-  .step-circle.inactive{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.4);}
-  .step-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:rgba(255,255,255,0.5);text-align:center;}
-  .step-label.active{color:var(--green);}
-  .step-line{height:2px;flex:1;background:rgba(255,255,255,0.15);margin-bottom:22px;max-width:60px;}
-  .step-line.done{background:rgba(126,224,126,0.4);}
-
-  /* MAIN */
-  .main{max-width:760px;margin:0 auto;padding:48px 24px 80px;}
-
-  /* ── STEP 1: FIELD SELECTION ── */
-  .step1-card{background:var(--white);border:2px solid var(--border);border-radius:20px;padding:36px;box-shadow:0 4px 24px rgba(61,63,232,0.07);}
-  .card-title{font-size:20px;font-weight:900;color:var(--navy);text-transform:uppercase;letter-spacing:-0.01em;margin-bottom:8px;}
-  .card-sub{font-size:15px;color:var(--grey);margin-bottom:32px;line-height:1.55;}
-
-  .fields-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:28px;}
-  .field-card{border:2px solid var(--border);border-radius:14px;padding:18px 16px;cursor:pointer;transition:all 0.2s;background:var(--white);text-align:left;font-family:'Barlow',sans-serif;width:100%;}
-  .field-card:hover{border-color:var(--blue);background:var(--blue-light);transform:translateY(-2px);}
-  .field-card.selected{border-color:var(--blue);background:var(--blue-light);box-shadow:0 0 0 3px rgba(61,63,232,0.12);}
-  .field-card-icon{font-size:26px;margin-bottom:10px;display:block;}
-  .field-card-name{font-size:14px;font-weight:800;color:var(--navy);margin-bottom:4px;line-height:1.3;}
-  .field-card-desc{font-size:12px;color:var(--grey);line-height:1.4;}
-  .field-card.selected .field-card-name,.field-card.selected .field-card-desc{color:var(--blue);}
-
-  .or-divider{display:flex;align-items:center;gap:12px;color:var(--grey);font-size:13px;font-weight:700;margin-bottom:20px;text-transform:uppercase;letter-spacing:0.05em;}
-  .or-divider::before,.or-divider::after{content:'';flex:1;height:1px;background:var(--border);}
-
-  .custom-field-wrap{display:flex;gap:10px;margin-bottom:28px;}
-  .custom-input{flex:1;padding:13px 16px;background:var(--grey-light);border:2px solid transparent;border-radius:10px;font-family:'Barlow',sans-serif;font-size:15px;font-weight:500;color:var(--navy);outline:none;transition:all 0.18s;}
-  .custom-input:focus{border-color:var(--blue);background:var(--blue-light);}
-  .custom-input::placeholder{color:#9CA3AF;}
-  .btn-custom-add{padding:13px 20px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-family:'Barlow',sans-serif;font-size:14px;font-weight:800;cursor:pointer;white-space:nowrap;transition:all 0.2s;}
-  .btn-custom-add:hover{background:var(--blue-dark);}
-
-  .selected-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px;min-height:0;}
-  .sel-tag{display:flex;align-items:center;gap:6px;background:var(--blue-light);border:1.5px solid var(--blue);border-radius:100px;padding:6px 14px;font-size:13px;font-weight:700;color:var(--blue);}
-  .sel-tag-x{cursor:pointer;font-size:15px;line-height:1;color:var(--blue);background:none;border:none;padding:0;font-weight:900;}
-  .sel-tag-x:hover{color:var(--blue-dark);}
-
-  .btn-next-step{width:100%;padding:17px;background:var(--blue);color:#fff;font-family:'Barlow',sans-serif;font-size:15px;font-weight:900;letter-spacing:0.07em;text-transform:uppercase;border:none;border-radius:var(--radius);cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:10px;}
-  .btn-next-step:hover{background:var(--blue-dark);transform:translateY(-1px);}
-  .btn-next-step:disabled{opacity:0.45;cursor:not-allowed;transform:none;}
-
-  /* ── STEP 2: CV UPLOAD ── */
-  .step2-card{background:var(--white);border:2px solid var(--border);border-radius:20px;padding:36px;box-shadow:0 4px 24px rgba(61,63,232,0.07);}
-
-  /* Selected fields summary */
-  .selected-summary{background:var(--green-light);border:1.5px solid #A8E6A8;border-radius:12px;padding:14px 18px;margin-bottom:24px;display:flex;align-items:flex-start;gap:12px;}
-  .selected-summary-icon{font-size:20px;flex-shrink:0;}
-  .selected-summary-text{font-size:14px;color:var(--green-dark);font-weight:600;line-height:1.5;}
-  .selected-summary-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
-  .summary-tag{background:var(--white);border:1.5px solid #A8E6A8;border-radius:100px;padding:3px 12px;font-size:12px;font-weight:700;color:var(--green-dark);}
-
-  .upload-zone{border:2px dashed var(--border);border-radius:14px;padding:36px 24px;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:20px;background:var(--grey-light);}
-  .upload-zone:hover,.upload-zone.drag-over{border-color:var(--blue);background:var(--blue-light);}
-  .upload-icon{font-size:34px;margin-bottom:10px;}
-  .upload-title{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px;}
-  .upload-hint{font-size:12px;color:var(--grey);}
-  .upload-zone input[type="file"]{display:none;}
-
-  .divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:var(--grey);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;}
-  .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
-
-  .field-label{display:block;font-size:12px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;}
-  .field-input{width:100%;padding:13px 16px;background:var(--grey-light);border:2px solid transparent;border-radius:10px;font-family:'Barlow',sans-serif;font-size:15px;font-weight:500;color:var(--navy);transition:all 0.18s;outline:none;}
-  .field-input:focus{border-color:var(--blue);background:var(--blue-light);}
-  .field-input::placeholder{color:#9CA3AF;}
-  .field-textarea{width:100%;padding:13px 16px;background:var(--grey-light);border:2px solid transparent;border-radius:10px;font-family:'Barlow',sans-serif;font-size:14px;font-weight:500;color:var(--navy);transition:all 0.18s;outline:none;resize:vertical;min-height:180px;line-height:1.6;}
-  .field-textarea:focus{border-color:var(--blue);background:var(--blue-light);}
-  .field-textarea::placeholder{color:#9CA3AF;}
-  .char-count{font-size:11px;color:var(--grey);text-align:right;margin-top:3px;}
-  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
-  @media(max-width:520px){.field-row{grid-template-columns:1fr;}}
-  .form-group{margin-bottom:16px;}
-
-  .privacy-note{font-size:12px;color:var(--grey);line-height:1.55;margin-bottom:18px;}
-  .btn-analyze{width:100%;padding:17px;background:var(--blue);color:#fff;font-family:'Barlow',sans-serif;font-size:15px;font-weight:900;letter-spacing:0.07em;text-transform:uppercase;border:none;border-radius:var(--radius);cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:10px;}
-  .btn-analyze:hover{background:var(--blue-dark);transform:translateY(-1px);}
-  .btn-analyze:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
-  .btn-back{display:flex;align-items:center;gap:6px;background:transparent;border:none;color:var(--grey);font-family:'Barlow',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:20px;padding:0;transition:color 0.2s;}
-  .btn-back:hover{color:var(--blue);}
-
-  /* LOADING */
-  .loading-card{background:var(--navy);border-radius:20px;padding:48px;text-align:center;display:none;}
-  .loading-spinner{width:48px;height:48px;border:4px solid rgba(255,255,255,0.15);border-top-color:var(--green);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 20px;}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .loading-text{color:#fff;font-size:18px;font-weight:700;margin-bottom:6px;}
-  .loading-sub{color:rgba(255,255,255,0.55);font-size:14px;margin-bottom:24px;}
-  .loading-steps{display:flex;flex-direction:column;gap:8px;text-align:left;max-width:280px;margin:0 auto;}
-  .loading-step{display:flex;align-items:center;gap:10px;color:rgba(255,255,255,0.4);font-size:13px;font-weight:600;transition:color 0.3s;}
-  .loading-step.done{color:var(--green);}
-  .step-icon{font-size:14px;width:18px;text-align:center;}
-
-  /* RESULTS */
-  .results-area{display:none;}
-  .score-hero{background:linear-gradient(135deg,var(--navy) 0%,#2d2f8a 100%);border-radius:24px;padding:48px 32px;margin-bottom:24px;text-align:center;position:relative;overflow:hidden;}
-  .score-hero::before{content:'';position:absolute;top:-80px;right:-80px;width:260px;height:260px;background:rgba(78,255,176,0.06);border-radius:50%;}
-  .score-ring-wrap{position:relative;width:140px;height:140px;margin:0 auto 20px;}
-  .score-ring-wrap svg{transform:rotate(-90deg);}
-  .score-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-  .score-num{font-size:40px;font-weight:900;color:var(--green);line-height:1;}
-  .score-pct{font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;}
-  .score-label-big{font-size:22px;font-weight:900;color:#fff;text-transform:uppercase;margin-bottom:8px;}
-  .score-summary{color:rgba(255,255,255,0.72);font-size:15px;line-height:1.6;max-width:480px;margin:0 auto;}
-  .analysis-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
-  @media(max-width:560px){.analysis-grid{grid-template-columns:1fr;}}
-  .analysis-card{background:var(--white);border:2px solid var(--border);border-radius:16px;padding:24px;}
-  .analysis-card-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
-  .analysis-card ul{list-style:none;display:flex;flex-direction:column;gap:8px;}
-  .analysis-card li{font-size:14px;color:var(--navy);line-height:1.5;padding-left:20px;position:relative;}
-  .analysis-card li::before{position:absolute;left:0;}
-  .strengths-card .analysis-card-title{color:var(--green-dark);}
-  .strengths-card li::before{content:'✓';color:var(--green-dark);}
-  .weaknesses-card .analysis-card-title{color:#C53030;}
-  .weaknesses-card li::before{content:'✗';color:#C53030;}
-  .improvements-card{background:var(--white);border:2px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;}
-  .improvements-card .analysis-card-title{color:var(--blue);}
-  .improvement-item{padding:14px 0;border-bottom:1px solid var(--border);display:flex;gap:14px;}
-  .improvement-item:last-child{border-bottom:none;padding-bottom:0;}
-  .imp-num{width:28px;height:28px;background:var(--blue-light);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:var(--blue);flex-shrink:0;margin-top:2px;}
-  .imp-title{font-size:14px;font-weight:800;color:var(--navy);margin-bottom:4px;}
-  .imp-desc{font-size:13px;color:var(--grey);line-height:1.5;}
-  .ai-readiness{background:var(--blue-light);border:2px solid rgba(61,63,232,0.18);border-radius:16px;padding:24px;margin-bottom:20px;}
-  .ai-readiness-title{font-size:12px;font-weight:800;color:var(--blue);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:14px;}
-  .ai-bar-wrap{display:flex;align-items:center;gap:14px;}
-  .ai-bar-bg{flex:1;height:10px;background:rgba(61,63,232,0.12);border-radius:100px;overflow:hidden;}
-  .ai-bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),#6B6DF0);border-radius:100px;transition:width 1s cubic-bezier(0.4,0,0.2,1);}
-  .ai-score-label{font-size:18px;font-weight:900;color:var(--blue);min-width:44px;text-align:right;}
-  .ai-readiness p{font-size:14px;color:#4B5063;margin-top:10px;line-height:1.55;}
-  .missing-skills{background:#FFF5F5;border:2px solid #FED7D7;border-radius:16px;padding:24px;margin-bottom:20px;}
-  .missing-skills-title{font-size:12px;font-weight:800;color:#C53030;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:12px;}
-  .skill-tags{display:flex;flex-wrap:wrap;gap:8px;}
-  .skill-tag{padding:6px 14px;background:#fff;border:1.5px solid #FCA5A5;border-radius:100px;font-size:13px;font-weight:700;color:#C53030;}
-  .cta-card{background:var(--blue);border-radius:20px;padding:36px;text-align:center;margin-bottom:24px;}
-  .cta-title{font-size:22px;font-weight:900;color:#fff;text-transform:uppercase;margin-bottom:10px;}
-  .cta-sub{color:rgba(255,255,255,0.78);font-size:15px;line-height:1.6;margin-bottom:24px;max-width:400px;margin-left:auto;margin-right:auto;}
-  .btn-cta{display:inline-flex;align-items:center;gap:10px;background:var(--green);color:var(--navy);font-family:'Barlow',sans-serif;font-size:14px;font-weight:900;letter-spacing:0.06em;text-transform:uppercase;padding:15px 36px;border:none;border-radius:var(--radius);cursor:pointer;text-decoration:none;transition:all 0.2s;}
-  .btn-cta:hover{background:#9AEAA9;transform:translateY(-2px);}
-  .btn-restart{display:inline-flex;align-items:center;gap:8px;background:transparent;border:2px solid var(--blue);color:var(--blue);font-family:'Barlow',sans-serif;font-size:13px;font-weight:900;letter-spacing:0.07em;text-transform:uppercase;padding:11px 24px;border-radius:var(--radius);cursor:pointer;transition:all 0.2s;}
-  .btn-restart:hover{background:var(--blue);color:#fff;}
-
-  @media(max-width:540px){.main{padding:32px 16px 60px;}.step1-card,.step2-card{padding:24px;}.fields-grid{grid-template-columns:1fr 1fr;}}
-  @media(max-width:380px){.fields-grid{grid-template-columns:1fr;}}
-
-  /* VCS RECOMMENDATIONS */
-  .vcs-rec-card {
-    background: var(--white);
-    border: 2px solid var(--border);
-    border-radius: 16px;
-    padding: 22px 24px;
-    margin-bottom: 14px;
-    display: flex;
-    align-items: flex-start;
-    gap: 16px;
-    flex-wrap: wrap;
-    transition: border-color 0.2s;
-  }
-  .vcs-rec-card:hover { border-color: var(--blue); }
-  .vcs-rec-card.career-change { border-left: 4px solid var(--blue); }
-  .vcs-rec-card.skill-upgrade { border-left: 4px solid var(--green-dark); }
-  .vcs-rec-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    padding: 4px 10px;
-    border-radius: 100px;
-    margin-bottom: 8px;
-    flex-shrink: 0;
-  }
-  .vcs-rec-badge.career { background: var(--blue-light); color: var(--blue); }
-  .vcs-rec-badge.skill { background: var(--green-light); color: var(--green-dark); }
-  .vcs-rec-body { flex: 1; min-width: 200px; }
-  .vcs-rec-title { font-size: 16px; font-weight: 800; color: var(--navy); margin-bottom: 6px; }
-  .vcs-rec-reason { font-size: 14px; color: var(--grey); line-height: 1.55; margin-bottom: 12px; }
-  .vcs-rec-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--blue);
-    color: #fff;
-    font-family: 'Barlow', sans-serif;
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    padding: 9px 18px;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: all 0.2s;
-  }
-  .vcs-rec-link:hover { background: var(--blue-dark); }
-  .vcs-rec-link.skill-link { background: var(--green-dark); }
-  .vcs-rec-link.skill-link:hover { background: #1f6b1f; }
-  .vcs-recs-title {
-    font-size: 13px;
-    font-weight: 800;
-    color: var(--navy);
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-</style>
+<title>CV Analizatorius – Vilnius Coding School</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+:root {
+  --vcs-blue: #3D3FE8;
+  --vcs-navy: #0F1035;
+  --vcs-green: #4ADE80;
+  --vcs-green-dim: #1a3a28;
+  --vcs-accent: #E8E83D;
+  --surface: #ffffff;
+  --surface-2: #F7F7FB;
+  --surface-3: #EEEEF8;
+  --border: rgba(61,63,232,0.12);
+  --border-mid: rgba(61,63,232,0.22);
+  --text-1: #0F1035;
+  --text-2: #5a5b7a;
+  --text-3: #9394b0;
+  --radius: 16px;
+  --radius-lg: 24px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--surface);
+  color: var(--text-1);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  position: sticky; top: 0; z-index: 200;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px;
+  gap: 16px;
+}
+.logo {
+  display: flex; align-items: center;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.logo svg {
+  height: 36px;
+  width: auto;
+  display: block;
+}
+.nav-right {
+  display: flex; align-items: center; gap: 10px;
+}
+.nav-tag {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  color: var(--vcs-blue);
+  background: var(--surface-3);
+  border: 1px solid var(--border-mid);
+  padding: 4px 12px;
+  border-radius: 100px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.nav-home-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px; font-weight: 600;
+  color: var(--vcs-navy);
+  background: var(--surface-2);
+  border: 1.5px solid var(--border-mid);
+  border-radius: 10px;
+  padding: 7px 14px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.18s;
+}
+.nav-home-btn:hover {
+  background: var(--vcs-navy);
+  color: white;
+  border-color: var(--vcs-navy);
+}
+.nav-home-btn svg {
+  width: 14px; height: 14px;
+  stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+@media(max-width:480px) {
+  .nav-tag { display: none; }
+  .nav-home-btn span { display: none; }
+}
+
+/* ── HERO ── */
+.hero {
+  background: var(--vcs-navy);
+  padding: 80px 40px 72px;
+  position: relative;
+  overflow: hidden;
+}
+.hero-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(61,63,232,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(61,63,232,0.06) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+.hero-glow {
+  position: absolute;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(61,63,232,0.35) 0%, transparent 70%);
+  top: -200px; right: -100px;
+  pointer-events: none;
+}
+.hero-inner {
+  position: relative; z-index: 2;
+  max-width: 1100px; margin: 0 auto;
+  padding: 0 16px;
+}
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+  color: var(--vcs-green);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.hero-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--vcs-green); flex-shrink: 0; }
+.hero h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(2.8rem, 6vw, 5rem);
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  margin-bottom: 24px;
+  text-align: left;
+}
+.hero h1 .accent { color: var(--vcs-green); }
+.hero h1 .underline-accent {
+  display: inline-block;
+  position: relative;
+}
+.hero h1 .underline-accent::after {
+  content: '';
+  position: absolute;
+  bottom: 4px; left: 0; right: 0;
+  height: 3px;
+  background: var(--vcs-blue);
+  border-radius: 2px;
+}
+.hero-desc {
+  font-size: 18px;
+  color: rgba(255,255,255,0.58);
+  line-height: 1.65;
+  max-width: 520px;
+  margin-bottom: 36px;
+  text-align: left;
+}
+.hero-stats {
+  display: flex; gap: 40px; flex-wrap: wrap;
+}
+.hero-stat {
+  display: flex; flex-direction: column; gap: 2px;
+}
+.hero-stat-num {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px; font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+.hero-stat-label { font-size: 12px; color: rgba(255,255,255,0.45); }
+
+/* ── PROGRESS STEPS ── */
+.steps-wrap {
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  padding: 0 56px;
+  position: sticky; top: 0; z-index: 190;
+}
+.steps-inner {
+  max-width: 720px; margin: 0 auto;
+  display: flex; align-items: stretch;
+}
+.step-tab {
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px 0;
+  border-bottom: 2px solid transparent;
+  margin-right: 32px;
+  transition: border-color 0.3s ease;
+  cursor: default;
+}
+.step-tab.active { border-bottom-color: var(--vcs-blue); }
+.step-tab.done { border-bottom-color: var(--vcs-green); }
+.step-num {
+  width: 24px; height: 24px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+  background: var(--surface-3);
+  color: var(--text-3);
+  flex-shrink: 0;
+  transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+.step-tab.active .step-num {
+  background: var(--vcs-blue);
+  color: white;
+  transform: scale(1.08);
+}
+.step-tab.done .step-num {
+  background: var(--vcs-green);
+  color: var(--vcs-navy);
+  transform: scale(1);
+}
+.step-name {
+  font-size: 13px; font-weight: 500;
+  color: var(--text-3);
+  transition: color 0.25s ease;
+}
+.step-tab.active .step-name { color: var(--vcs-blue); }
+.step-tab.done .step-name { color: #1a7a3e; }
+
+/* ── SECTION TRANSITIONS ── */
+.section-panel {
+  animation: panelIn 0.38s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.section-panel.slide-back {
+  animation: panelBack 0.32s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes panelBack {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── MAIN LAYOUT ── */
+.main { max-width: 720px; margin: 0 auto; padding: 48px 40px 100px; }
+
+/* ── SECTION HEADER ── */
+.section-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--vcs-blue);
+  margin-bottom: 8px;
+}
+.section-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px; font-weight: 700;
+  color: var(--text-1);
+  margin-bottom: 6px;
+  letter-spacing: -0.02em;
+}
+.section-sub {
+  font-size: 15px; color: var(--text-2);
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+/* ── FIELD CARDS GRID ── */
+.fields-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.field-card {
+  position: relative;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 16px;
+  cursor: pointer;
+  background: var(--surface);
+  text-align: left;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.18s;
+  display: block; width: 100%;
+}
+.field-card:hover {
+  border-color: var(--vcs-blue);
+  background: var(--surface-3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(61,63,232,0.08);
+}
+.field-card.selected {
+  border-color: var(--vcs-blue);
+  background: #f0f0fd;
+  box-shadow: 0 0 0 3px rgba(61,63,232,0.1);
+}
+.field-card-check {
+  position: absolute; top: 12px; right: 12px;
+  width: 18px; height: 18px;
+  border: 1.5px solid var(--border-mid);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.18s;
+}
+.field-card.selected .field-card-check {
+  background: var(--vcs-blue);
+  border-color: var(--vcs-blue);
+}
+.field-card.selected .field-card-check::after {
+  content: '';
+  width: 5px; height: 8px;
+  border-right: 2px solid white;
+  border-bottom: 2px solid white;
+  transform: rotate(40deg) translateY(-1px);
+  display: block;
+}
+.field-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: rgba(51,61,245,0.08);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 12px;
+  transition: background 0.18s;
+  color: #333df5;
+  flex-shrink: 0;
+}
+.field-icon svg {
+  width: 20px; height: 20px;
+  stroke: #333df5;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.field-card.selected .field-icon { background: rgba(51,61,245,0.14); }
+.field-card-name {
+  font-size: 14px; font-weight: 600;
+  color: var(--text-1); line-height: 1.3;
+  margin-bottom: 3px;
+}
+.field-card-desc { font-size: 12px; color: var(--text-3); line-height: 1.4; }
+.field-card.selected .field-card-name { color: var(--vcs-blue); }
+
+/* ── CUSTOM FIELD ── */
+.divider-text {
+  display: flex; align-items: center; gap: 12px;
+  color: var(--text-3); font-size: 12px; font-weight: 500;
+  margin-bottom: 16px; letter-spacing: 0.04em; text-transform: uppercase;
+}
+.divider-text::before, .divider-text::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+.custom-row {
+  display: flex; gap: 8px; margin-bottom: 24px;
+}
+.input-base {
+  flex: 1; padding: 12px 16px;
+  background: var(--surface-2);
+  border: 1.5px solid transparent;
+  border-radius: 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px; color: var(--text-1);
+  outline: none; transition: all 0.18s;
+}
+.input-base:focus {
+  border-color: var(--vcs-blue);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(61,63,232,0.08);
+}
+.input-base::placeholder { color: var(--text-3); }
+.btn-add {
+  padding: 12px 18px;
+  background: var(--vcs-blue);
+  color: white;
+  border: none; border-radius: 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+  transition: all 0.18s;
+}
+.btn-add:hover { background: #2a2cc8; transform: translateY(-1px); }
+
+/* ── TAGS ── */
+.tags-wrap {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-bottom: 24px;
+}
+.tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #ededfc;
+  border: 1px solid var(--border-mid);
+  border-radius: 100px;
+  padding: 5px 12px;
+  font-size: 13px; font-weight: 500;
+  color: var(--vcs-blue);
+}
+.tag-x {
+  cursor: pointer; background: none; border: none;
+  color: var(--vcs-blue); font-size: 14px; line-height: 1;
+  padding: 0; opacity: 0.6; transition: opacity 0.15s;
+}
+.tag-x:hover { opacity: 1; }
+
+/* ── GOAL QUESTION ── */
+.goal-section {
+  background: linear-gradient(135deg, var(--vcs-navy) 0%, #1a1c60 100%);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  margin-bottom: 28px;
+  position: relative;
+  overflow: hidden;
+}
+.goal-section::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  background: rgba(61,63,232,0.4);
+}
+.goal-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--vcs-green);
+  margin-bottom: 10px;
+  position: relative; z-index: 2;
+}
+.goal-question {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 18px; font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 18px;
+  letter-spacing: -0.02em;
+  position: relative; z-index: 2;
+  line-height: 1.3;
+}
+.goal-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  position: relative; z-index: 2;
+}
+.goal-option {
+  background: rgba(255,255,255,0.07);
+  border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 10px;
+  transition: all 0.18s;
+  text-align: left;
+  font-family: 'Inter', sans-serif;
+  width: 100%;
+}
+.goal-option:hover {
+  background: rgba(255,255,255,0.13);
+  border-color: rgba(255,255,255,0.3);
+}
+.goal-option.selected {
+  background: rgba(61,63,232,0.4);
+  border-color: var(--vcs-blue);
+}
+.goal-option-dot {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.3);
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.18s;
+}
+.goal-option.selected .goal-option-dot {
+  background: var(--vcs-green);
+  border-color: var(--vcs-green);
+}
+.goal-option.selected .goal-option-dot::after {
+  content: '';
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--vcs-navy);
+  display: block;
+}
+.goal-option-text {
+  font-size: 13px; font-weight: 500;
+  color: rgba(255,255,255,0.8);
+  line-height: 1.3;
+}
+.goal-option.selected .goal-option-text { color: #fff; }
+
+/* ── PRIMARY BUTTON ── */
+.btn-primary {
+  width: 100%;
+  padding: 16px 24px;
+  background: var(--vcs-blue);
+  color: white;
+  border: none; border-radius: 14px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px; font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-primary:hover { background: #2a2cc8; transform: translateY(-2px); box-shadow: 0 12px 32px rgba(61,63,232,0.25); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-primary svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.5; }
+
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: none; border: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px; font-weight: 500;
+  color: var(--text-2);
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 24px;
+  transition: color 0.15s;
+}
+.btn-secondary:hover { color: var(--vcs-blue); }
+
+/* ── STEP 2 ── */
+.summary-bar {
+  display: flex; align-items: center; gap: 10px;
+  flex-wrap: wrap;
+  background: #f0faf4;
+  border: 1px solid #c3e6d0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+}
+.summary-bar-label {
+  font-size: 12px; font-weight: 600;
+  color: #1a7a3e;
+}
+.summary-bar-tag {
+  background: white; border: 1px solid #c3e6d0;
+  border-radius: 100px;
+  padding: 3px 10px;
+  font-size: 12px; font-weight: 500;
+  color: #1a7a3e;
+}
+
+/* ── UPLOAD ZONE ── */
+.upload-zone {
+  border: 2px dashed var(--border-mid);
+  border-radius: var(--radius);
+  padding: 36px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 20px;
+  background: var(--surface-2);
+}
+.upload-zone:hover, .upload-zone.drag-over {
+  border-color: var(--vcs-blue);
+  background: var(--surface-3);
+}
+.upload-zone input[type="file"] { display: none; }
+.upload-icon-wrap {
+  width: 52px; height: 52px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 14px;
+  font-size: 22px;
+}
+.upload-title { font-size: 15px; font-weight: 600; color: var(--text-1); margin-bottom: 4px; }
+.upload-hint { font-size: 12px; color: var(--text-3); }
+
+.or-divider {
+  display: flex; align-items: center; gap: 12px;
+  color: var(--text-3); font-size: 12px; font-weight: 500;
+  margin: 18px 0; text-transform: uppercase; letter-spacing: 0.06em;
+}
+.or-divider::before, .or-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.field-label {
+  display: block;
+  font-size: 12px; font-weight: 600;
+  color: var(--text-2);
+  text-transform: uppercase; letter-spacing: 0.07em;
+  margin-bottom: 6px;
+}
+.field-label span { font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--text-3); }
+.field-input {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--surface-2);
+  border: 1.5px solid transparent;
+  border-radius: 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px; color: var(--text-1);
+  outline: none; transition: all 0.18s;
+}
+.field-input:focus {
+  border-color: var(--vcs-blue);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(61,63,232,0.08);
+}
+.field-input::placeholder { color: var(--text-3); }
+.field-textarea {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--surface-2);
+  border: 1.5px solid transparent;
+  border-radius: 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px; color: var(--text-1);
+  outline: none; transition: all 0.18s;
+  resize: vertical; min-height: 170px;
+  line-height: 1.6;
+}
+.field-textarea:focus {
+  border-color: var(--vcs-blue);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(61,63,232,0.08);
+}
+.field-textarea::placeholder { color: var(--text-3); }
+.char-count { font-size: 11px; color: var(--text-3); text-align: right; margin-top: 4px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.form-group { margin-bottom: 12px; }
+@media(max-width:520px) { .form-row { grid-template-columns: 1fr; } }
+
+.privacy-line {
+  font-size: 12px; color: var(--text-3); line-height: 1.6;
+  margin-bottom: 20px; margin-top: 4px;
+}
+.privacy-line a { color: var(--vcs-blue); font-weight: 500; text-decoration: none; }
+.privacy-line a:hover { text-decoration: underline; }
+
+/* ── LOADING ── */
+.loading-panel {
+  background: var(--vcs-navy);
+  border-radius: var(--radius-lg);
+  padding: 56px 40px;
+  text-align: center;
+  display: none;
+}
+.spinner {
+  width: 44px; height: 44px;
+  border: 3px solid rgba(255,255,255,0.1);
+  border-top-color: var(--vcs-green);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 20px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 20px; font-weight: 700;
+  color: white; margin-bottom: 6px;
+}
+.loading-sub { font-size: 14px; color: rgba(255,255,255,0.45); margin-bottom: 28px; }
+.loading-steps-list { display: flex; flex-direction: column; gap: 10px; max-width: 260px; margin: 0 auto; text-align: left; }
+.l-step {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; font-weight: 500;
+  color: rgba(255,255,255,0.3);
+  transition: color 0.4s;
+}
+.l-step.done { color: var(--vcs-green); }
+.l-step-icon { font-size: 14px; width: 16px; text-align: center; }
+
+/* ── RESULTS ── */
+.results-area { display: none; }
+
+.score-panel {
+  background: var(--vcs-navy);
+  border-radius: var(--radius-lg);
+  padding: 48px 40px;
+  text-align: center;
+  margin-bottom: 20px;
+  position: relative; overflow: hidden;
+}
+.score-panel::before {
+  content: '';
+  position: absolute; top: -60px; right: -60px;
+  width: 240px; height: 240px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(61,63,232,0.4) 0%, transparent 70%);
+}
+.score-ring-wrap {
+  position: relative; width: 140px; height: 140px;
+  margin: 0 auto 24px;
+}
+.score-ring-wrap svg { transform: rotate(-90deg); }
+.score-center {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.score-num {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 42px; font-weight: 800;
+  color: var(--vcs-green); line-height: 1;
+}
+.score-pct { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+.score-label {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 20px; font-weight: 700;
+  color: white; text-transform: uppercase;
+  letter-spacing: 0.01em; margin-bottom: 10px;
+}
+.score-summary { font-size: 15px; color: rgba(255,255,255,0.6); line-height: 1.65; max-width: 460px; margin: 0 auto; }
+
+.results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+@media(max-width:560px) { .results-grid { grid-template-columns: 1fr; } }
+
+.result-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+}
+.result-card-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.result-card ul { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+.result-card li {
+  font-size: 14px; color: var(--text-1);
+  line-height: 1.5; padding-left: 22px;
+  position: relative;
+}
+.result-card li::before { position: absolute; left: 0; }
+.strengths-card .result-card-label { color: #1a7a3e; }
+.strengths-card li::before { content: '✓'; color: #1a7a3e; font-weight: 700; }
+.weaknesses-card .result-card-label { color: #b91c1c; }
+.weaknesses-card li::before { content: '✕'; color: #b91c1c; font-weight: 700; }
+
+.tips-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  margin-bottom: 14px;
+}
+.tips-card .result-card-label { color: var(--vcs-blue); }
+.tip-item {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  display: flex; gap: 14px;
+}
+.tip-item:last-child { border-bottom: none; padding-bottom: 0; }
+.tip-num {
+  width: 26px; height: 26px;
+  background: var(--surface-3);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+  color: var(--vcs-blue);
+  flex-shrink: 0; margin-top: 2px;
+}
+.tip-title { font-size: 14px; font-weight: 600; color: var(--text-1); margin-bottom: 3px; }
+.tip-desc { font-size: 13px; color: var(--text-2); line-height: 1.55; }
+
+.ai-card {
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  margin-bottom: 14px;
+}
+.ai-card-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--vcs-blue); margin-bottom: 14px; }
+.bar-row { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+.bar-bg { flex: 1; height: 8px; background: rgba(61,63,232,0.1); border-radius: 100px; overflow: hidden; }
+.bar-fill { height: 100%; background: var(--vcs-blue); border-radius: 100px; width: 0; transition: width 1s cubic-bezier(0.4,0,0.2,1); }
+.bar-num { font-size: 16px; font-weight: 700; color: var(--vcs-blue); min-width: 40px; text-align: right; }
+.ai-desc { font-size: 14px; color: var(--text-2); line-height: 1.55; }
+
+.skills-missing {
+  background: #fff8f8;
+  border: 1px solid #fca5a5;
+  border-radius: var(--radius);
+  padding: 22px;
+  margin-bottom: 14px;
+}
+.skills-missing-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #b91c1c; margin-bottom: 12px; }
+.skill-tags { display: flex; flex-wrap: wrap; gap: 7px; }
+.skill-tag {
+  padding: 5px 12px;
+  background: white; border: 1px solid #fca5a5;
+  border-radius: 100px;
+  font-size: 12px; font-weight: 600;
+  color: #b91c1c;
+}
+
+/* ── VCS RECOMMENDATIONS ── */
+#vcsRecsSection { margin-bottom: 14px; }
+.vcs-section-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--vcs-blue);
+  margin-bottom: 14px;
+}
+.vcs-rec {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  margin-bottom: 10px;
+  display: flex; align-items: flex-start; gap: 16px;
+  transition: border-color 0.2s;
+}
+.vcs-rec:hover { border-color: var(--border-mid); }
+.vcs-rec.career { border-left: 3px solid var(--vcs-blue); }
+.vcs-rec.skill { border-left: 3px solid #1a7a3e; }
+.vcs-badge {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 6px;
+  margin-bottom: 6px;
+  display: inline-flex;
+}
+.vcs-badge.career-b { background: var(--surface-3); color: var(--vcs-blue); }
+.vcs-badge.skill-b { background: #f0faf4; color: #1a7a3e; }
+.vcs-rec-body { flex: 1; min-width: 0; }
+.vcs-rec-title { font-size: 15px; font-weight: 600; color: var(--text-1); margin-bottom: 5px; }
+.vcs-rec-reason { font-size: 13px; color: var(--text-2); line-height: 1.55; margin-bottom: 12px; }
+.vcs-rec-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--vcs-blue); color: white;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px; font-weight: 600;
+  padding: 8px 14px; border-radius: 8px;
+  text-decoration: none; transition: all 0.18s;
+}
+.vcs-rec-btn:hover { background: #2a2cc8; }
+.vcs-rec-btn.skill-btn { background: #1a7a3e; }
+.vcs-rec-btn.skill-btn:hover { background: #145e30; }
+
+/* ── CTA CARD ── */
+.cta-panel {
+  background: var(--vcs-navy);
+  border-radius: var(--radius-lg);
+  padding: 44px;
+  text-align: center;
+  margin-bottom: 24px;
+  position: relative; overflow: hidden;
+}
+.cta-panel::before {
+  content: '';
+  position: absolute; bottom: -60px; left: -60px;
+  width: 220px; height: 220px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(61,63,232,0.5) 0%, transparent 70%);
+}
+.cta-eyebrow {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--vcs-green);
+  margin-bottom: 12px; display: block; position: relative; z-index: 2;
+}
+.cta-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 24px; font-weight: 700;
+  color: white;
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+  position: relative; z-index: 2;
+}
+.cta-sub {
+  font-size: 15px; color: rgba(255,255,255,0.55);
+  line-height: 1.6; margin-bottom: 28px;
+  max-width: 380px; margin-left: auto; margin-right: auto;
+  position: relative; z-index: 2;
+}
+.btn-cta {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--vcs-green);
+  color: var(--vcs-navy);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px; font-weight: 700;
+  padding: 14px 32px;
+  border: none; border-radius: 12px;
+  cursor: pointer; text-decoration: none;
+  transition: all 0.2s;
+  position: relative; z-index: 2;
+}
+.btn-cta:hover { background: #86efac; transform: translateY(-2px); }
+
+.btn-restart {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: transparent;
+  border: 1.5px solid var(--border-mid);
+  color: var(--text-2);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px; font-weight: 500;
+  padding: 10px 22px;
+  border-radius: 10px;
+  cursor: pointer; transition: all 0.2s;
+}
+.btn-restart:hover { border-color: var(--vcs-blue); color: var(--vcs-blue); }
+
+.err-msg { color: #b91c1c; font-size: 13px; font-weight: 500; margin-top: 10px; display: none; }
+
+@media(max-width:600px) {
+  .topbar { padding: 0 20px; }
+  .hero { padding: 60px 20px 56px; }
+  .hero-stats { gap: 24px; }
+  .steps-wrap { padding: 0 20px; }
+  .main { padding: 32px 20px 80px; }
+  .goal-options { grid-template-columns: 1fr; }
+  .score-panel { padding: 36px 24px; }
+  .cta-panel { padding: 32px 24px; }
+}
+
+/* Pulse badge for live analysis */
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+</style>
 </head>
 <body>
 
-<!-- Purple glow background -->
-<div style="position:fixed;inset:0;z-index:-1;pointer-events:none;background:white;">
-  <div style="position:absolute;inset:0;background:radial-gradient(circle at center, #8249fc, transparent);opacity:0.12;"></div>
-</div>
-
-<nav class="topbar">
-  <a href="https://www.vilniuscoding.lt/" target="_blank" style="text-decoration:none;" class="logo">
-    <img src="data:image/png;base64,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" alt="VCS">
-    Vilnius Coding School
+<!-- TOPBAR -->
+<header class="topbar">
+  <a href="https://www.vilniuscoding.lt/" target="_blank" class="logo">
+    <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 641.72 752.89">
+      <g>
+        <path d="M211.44,425.25c-7.19,2.05-17.46,7.19-24.65,9.24-12.32,5.13-24.65,7.19-39.02,7.19s-35.94-5.13-51.35-14.38c-24.65-17.46-41.08-39.02-48.27-67.78-2.05-12.32-5.13-26.7-5.13-41.08v-188.96c0-35.94,2.05-72.91,2.05-108.86v-9.24c0-5.13,2.05-7.19,7.19-9.24s42.1-3.08,51.35-1.03c7.19,2.05,9.24,4.11,9.24,13.35-2.05,28.75-2.05,58.54-5.13,87.29-2.05,62.64-2.05,128.37-5.13,191.01,0,17.46-4.11,48.27,7.19,67.78,2.05,5.13,14.38,20.54,39.02,19.51,13.35,0,17.46-9.24,17.46-9.24-9.24-19.51-17.46-41.08-19.51-62.64-2.05-12.32-2.05-26.7-2.05-39.02v-67.78c0-28.75,5.13-60.59,12.32-89.34,7.19-21.57,17.46-41.08,33.89-58.54,19.51-19.51,41.08-31.84,67.78-39.02,28.75-7.19,60.59-9.24,92.42-7.19,19.51,0,39.02,5.13,58.54,12.32,39.02,14.38,62.64,41.08,80.1,74.97,12.32,21.57,17.46,46.21,21.57,69.83,5.13,31.84,7.19,62.64,7.19,96.53s-5.13,39.02-12.32,58.54c-12.32,28.75-26.7,55.45-43.13,80.1-14.38,21.57-46.21,63.67-53.4,72.91-2.05,5.13-2.05,7.19,2.05,12.32,8.22,8.22,99.61,31.84,126.31,35.94,17.46,2.05,31.84,7.19,46.21,17.46,28.75,17.46,51.35,39.02,55.45,72.91,0,7.19,2.05,12.32,2.05,19.51v69.83c-7.19,2.05-17.46,5.13-24.65,7.19-41.08,12.32-82.16,21.57-126.31,28.75-28.75,5.13-60.59,9.24-89.34,12.32-48.27,5.13-96.53,5.13-142.74,2.05-58.54-2.05-113.99-12.32-171.5-26.7-26.7-7.19-51.35-14.38-74.97-21.57-2.05,0-2.05-2.05-2.05-2.05-7.19-24.65-12.32-48.27-9.24-72.91,2.05-26.7,9.24-48.27,28.75-67.78,9.24-7.19,19.51-14.38,31.84-19.51,39.02-14.38,74.97-26.7,113.99-35.94,17.46-5.13,60.59-21.57,65.72-24.65,5.13-3.08,5.13-7.19,2.05-12.32-3.08-5.13-19.51-29.78-31.84-42.1h0M337.75,302.01h80.1c31.84,0,55.45-24.65,55.45-55.45v-35.94c0-28.75-24.65-55.45-55.45-55.45h-162.26c-28.75,0-55.45,24.65-55.45,55.45v39.19c0,8.6,2.06,17.15,6.49,24.52,10.08,16.76,27.55,25.63,46.91,25.63,32.86,2.05,57.51,2.05,84.21,2.05"/>
+        <path d="M368.6,194.66c-12.54,2.65-17.52,7.35-20.89,10.72-5.62-2.25-18.75-1.61-22.82-.21-6.51-6.44-10.82-8.58-27.03-11.66-14.46-2.76-40.79-2.33-62.1,1.84-9.33,1.83-17.88,8.94-17.88,18.44,0,0-1.37,37.85,10.89,52.82,3.71,5.46,10.32,8.82,20.14,10.28,22.21,3.3,40.26,1.65,50.4-.22,10.14-1.88,20.03-9.31,23.82-24.35,3.79-15.04,4.18-26.52,4.42-29.53.1-1.3.7-1.09,1.2-1.12,5.35-.37,10.23-.27,15.01.04,1.13.07,1.42.62,1.48,1.17.23,2.14,2.39,24.47,4.29,29.65,3.49,9.55,8.29,16.06,14.53,19.67,5.71,3.3,10.59,5.35,19.19,5.81,8.6.46,27.66.08,38.32-.71,10.65-.79,16.07-3.27,21.42-9.06,13.96-17.05,12.81-46.26,12.42-55.91s-9.25-14.84-18.32-17.1c-17.33-4.33-50.48-4.36-68.49-.56ZM306.35,247.69c-1.79,5.15-5.59,9.39-10.6,11.55-.29.12-.52.21-.67.25-15.08,3.65-41.25,1.29-45.49-.06-2.03-.64-7.75-1.38-10.09-9.73-1.91-6.8-4.55-15.13-5.1-31.19-.09-2.63-.01-5.13,3.55-5.82,25.11-4.81,58.26-4.03,70.05.85,1.39.58,2.41,1.83,2.65,3.32.99,6.13-.84,20.87-4.3,30.82ZM433.53,250.03c-2.82,9.06-7.81,9.01-13.75,9.57-7.96.75-31.18,1.9-37.05.88-9.49-1.66-13-3.87-15.82-11.39-4.26-17.74-4.39-25.99-4.62-30.05-.13-2.3,1.29-4.42,3.5-5.11,25.48-8,57.67-4.02,67.42-1.53,2.01.52,5.04.84,5.2,4.03.16,3.18-1.94,24.17-4.88,33.6Z"/>
+      </g>
+    </svg>
   </a>
-  <div class="nav-badge">AI CV Analizė</div>
-</nav>
+  <div class="nav-right">
+    <a href="https://www.vilniuscoding.lt/" target="_blank" class="nav-home-btn">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>vilniuscoding.lt</span>
+    </a>
+    <div class="nav-tag">Nemokama analizė</div>
+  </div>
+</header>
 
-<div class="hero">
-  <!-- Stepper -->
-  <div class="stepper" id="stepper">
-    <div class="step-item">
-      <div class="step-circle active" id="sc1">1</div>
-      <div class="step-label active" id="sl1">Sritis</div>
-    </div>
-    <div class="step-line" id="stepLine"></div>
-    <div class="step-item">
-      <div class="step-circle inactive" id="sc2">2</div>
-      <div class="step-label" id="sl2">CV + kontaktai</div>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <h1>Sužinok, kur<br>tavo <span class="accent">karjera</span><br>gali nueiti</h1>
+    <p class="hero-desc">Įkelk CV ir gauk personalizuotą analizę – konkrečias rekomendacijas, AI parengties rodiklį ir VCS mokymo kursus pagal tavo tikslus.</p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-num">30 sek.</div>
+        <div class="hero-stat-label">Analizės laikas</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">100%</div>
+        <div class="hero-stat-label">Nemokamai</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">AI</div>
+        <div class="hero-stat-label">Personalizuota</div>
+      </div>
     </div>
   </div>
+</section>
 
-  <h1>Ar tavo CV paruoštas<br><em>AI darbo rinkai?</em></h1>
-  <p class="hero-sub">Pasirink dominančias sritis ir gauk personalizuotą AI analizę per 30 sekundžių.</p>
-  <div class="hero-pills">
-    <div class="hero-pill"><div class="pill-dot"></div>Įvertinimas iš karto</div>
-    <div class="hero-pill"><div class="pill-dot"></div>Konkretūs patarimai</div>
-    <div class="hero-pill"><div class="pill-dot"></div>AI parengties rodiklis</div>
+<!-- STEP TABS -->
+<div class="steps-wrap">
+  <div class="steps-inner">
+    <div class="step-tab active" id="stepTab1">
+      <div class="step-num" id="sc1">1</div>
+      <div class="step-name" id="sl1">Sritis &amp; tikslas</div>
+    </div>
+    <div class="step-tab" id="stepTab2">
+      <div class="step-num" id="sc2">2</div>
+      <div class="step-name" id="sl2">CV ir kontaktai</div>
+    </div>
+    <div class="step-tab" id="stepTab3">
+      <div class="step-num" id="sc3">3</div>
+      <div class="step-name" id="sl3">Rezultatai</div>
+    </div>
   </div>
 </div>
 
-<div class="main">
+<!-- MAIN -->
+<main class="main">
 
-  <!-- ── STEP 1: FIELD SELECTION ── -->
-  <div id="step1Section">
-    <div class="step1-card">
-      <div class="card-title">&#127919; Kuri sritis tave domina?</div>
-      <div class="card-sub">Pasirink vieną ar kelias sritis, kuriose nori dirbti ar tobulėti. Pagal tai pritaikysime CV analizę.</div>
+  <!-- STEP 1 -->
+  <div id="step1Section" class="section-panel">
+    <div class="section-label">1 žingsnis</div>
+    <div class="section-title">Kuria kryptimi nori judėti?</div>
+    <p class="section-sub">Pasirink vieną ar daugiau sričių – pagal jas pritaikysime CV analizę ir rekomendacijas.</p>
 
-      <div class="fields-grid">
-        <button class="field-card" data-field="Web programavimas su AI">
-          <span class="field-card-icon">&#128187;</span>
-          <div class="field-card-name">Web programavimas</div>
-          <div class="field-card-desc">Svetainės, aplikacijos, front-end</div>
-        </button>
-        <button class="field-card" data-field="Duomenų analizė ir AI">
-          <span class="field-card-icon">&#128202;</span>
-          <div class="field-card-name">Duomenų analizė</div>
-          <div class="field-card-desc">Excel, SQL, Power BI, statistika</div>
-        </button>
-        <button class="field-card" data-field="Skaitmeninė rinkodara su AI">
-          <span class="field-card-icon">&#128293;</span>
-          <div class="field-card-name">Skaitmeninė rinkodara</div>
-          <div class="field-card-desc">Social media, SEO, Google Ads</div>
-        </button>
-        <button class="field-card" data-field="E-komercija ir verslas internete">
-          <span class="field-card-icon">&#128722;</span>
-          <div class="field-card-name">E-komercija</div>
-          <div class="field-card-desc">Shopify, el. parduotuvės, pardavimai</div>
-        </button>
-        <button class="field-card" data-field="IT projektų valdymas">
-          <span class="field-card-icon">&#128203;</span>
-          <div class="field-card-name">Projektų valdymas</div>
-          <div class="field-card-desc">Scrum, Agile, komandos vadovavimas</div>
-        </button>
-        <button class="field-card" data-field="AI ir procesų automatizavimas">
-          <span class="field-card-icon">&#129302;</span>
-          <div class="field-card-name">AI automatizavimas</div>
-          <div class="field-card-desc">ChatGPT, Make, N8N, darbų srautai</div>
-        </button>
-        <button class="field-card" data-field="UI/UX dizainas ir produkto kūrimas">
-          <span class="field-card-icon">&#127912;</span>
-          <div class="field-card-name">UI/UX dizainas</div>
-          <div class="field-card-desc">Figma, naudotojų patirtis, produktas</div>
-        </button>
-        <button class="field-card" data-field="Kibernetinė sauga">
-          <span class="field-card-icon">&#128274;</span>
-          <div class="field-card-name">Kibernetinė sauga</div>
-          <div class="field-card-desc">Saugumo auditas, tinklų apsauga</div>
-        </button>
-      </div>
-
-      <!-- Custom field -->
-      <div class="or-divider">arba įrašyk savo sritį (jei nėra sąraše)</div>
-      <div class="custom-field-wrap">
-        <input class="custom-input" type="text" id="customField" placeholder="Pvz.: Buhalterija ir finansai, Medicina, Teisė...">
-        <button class="btn-custom-add" id="btnAddCustom">Pridėti +</button>
-      </div>
-
-      <!-- Selected tags -->
-      <div class="selected-tags" id="selectedTags" style="display:none"></div>
-
-      <div id="step1Error" style="color:#C53030;font-size:13px;font-weight:600;margin-bottom:14px;display:none;">
-        Prašome pasirinkti bent vieną sritį.
-      </div>
-
-      <button class="btn-next-step" id="btnToStep2">
-        Įkelti CV &#8594;
+    <div class="fields-grid">
+      <button class="field-card" data-field="Web programavimas su AI">
+        <div class="field-card-check"></div>
+        <div class="field-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/><line x1="2" y1="12" x2="22" y2="12"/></svg></div>
+        <div class="field-card-name">Web programavimas</div>
+        <div class="field-card-desc">Svetainės, aplikacijos, front-end</div>
+      </button>
+      <button class="field-card" data-field="Duomenų analizė ir AI">
+        <div class="field-card-check"></div>
+        <div class="field-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></div>
+        <div class="field-card-name">Duomenų analizė</div>
+        <div class="field-card-desc">Excel, SQL, Power BI, statistika</div>
+      </button>
+      <button class="field-card" data-field="Skaitmeninė rinkodara su AI">
+        <div class="field-card-check"></div>
+        <div class="field-icon"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+        <div class="field-card-name">Skaitmeninė rinkodara</div>
+        <div class="field-card-desc">Social media, SEO, Google Ads</div>
+      </button>
+      <button class="field-card" data-field="E-komercija ir verslas internete">
+        <div class="field-card-check"></div>
+        <div class="field-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div>
+        <div class="field-card-name">E-komercija</div>
+        <div class="field-card-desc">Shopify, el. parduotuvės, pardavimai</div>
+      </button>
+      <button class="field-card" data-field="IT projektų valdymas">
+        <div class="field-card-check"></div>
+        <div class="field-icon"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+        <div class="field-card-name">Projektų valdymas</div>
+        <div class="field-card-desc">Scrum, Agile, komandos vadovavimas</div>
+      </button>
+      <button class="field-card" data-field="AI ir procesų automatizavimas">
+        <div class="field-card-check"></div>
+        <div class="field-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><line x1="12" y1="7" x2="12" y2="11"/><line x1="8" y1="16" x2="8" y2="16" stroke-width="2.5"/><line x1="12" y1="16" x2="12" y2="16" stroke-width="2.5"/><line x1="16" y1="16" x2="16" y2="16" stroke-width="2.5"/></svg></div>
+        <div class="field-card-name">AI automatizavimas</div>
+        <div class="field-card-desc">ChatGPT, Make, N8N, darbų srautai</div>
+      </button>
+      <button class="field-card" data-field="UI/UX dizainas ir produkto kūrimas">
+        <div class="field-card-check"></div>
+        <div class="field-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg></div>
+        <div class="field-card-name">UI/UX dizainas</div>
+        <div class="field-card-desc">Figma, naudotojų patirtis, produktas</div>
+      </button>
+      <button class="field-card" data-field="Kibernetinė sauga">
+        <div class="field-card-check"></div>
+        <div class="field-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <div class="field-card-name">Kibernetinė sauga</div>
+        <div class="field-card-desc">Saugumo auditas, tinklų apsauga</div>
       </button>
     </div>
+
+    <div class="divider-text">arba įrašyk savo sritį</div>
+    <div class="custom-row">
+      <input class="input-base" type="text" id="customField" placeholder="Pvz.: Buhalterija, Medicina, Teisė...">
+      <button class="btn-add" id="btnAddCustom">Pridėti +</button>
+    </div>
+
+    <div class="tags-wrap" id="selectedTags" style="display:none"></div>
+
+    <!-- CAREER GOAL QUESTION -->
+    <div class="goal-section">
+      <div class="goal-label">Padėk mums geriau suprasti tave</div>
+      <div class="goal-question">Koks tavo dabartinis karjeros tikslas?</div>
+      <div class="goal-options">
+        <button class="goal-option" data-goal="Tobulinti įgūdžius">
+          <div class="goal-option-dot"></div>
+          <div class="goal-option-text">Tobulinti įgūdžius</div>
+        </button>
+        <button class="goal-option" data-goal="Keisti karjerą visiškai">
+          <div class="goal-option-dot"></div>
+          <div class="goal-option-text">Keisti karjerą visiškai</div>
+        </button>
+        <button class="goal-option" data-goal="Tik domiuosi galimybėmis">
+          <div class="goal-option-dot"></div>
+          <div class="goal-option-text">Tik domiuosi galimybėmis</div>
+        </button>
+        <button class="goal-option" data-goal="Svarstau, bet dar neapsisprendžiau">
+          <div class="goal-option-dot"></div>
+          <div class="goal-option-text">Svarstau, bet dar neapsisprendžiau</div>
+        </button>
+      </div>
+    </div>
+
+    <div id="step1Error" class="err-msg" style="display:none; margin-bottom: 12px;">
+      Prašome pasirinkti bent vieną sritį.
+    </div>
+
+    <button class="btn-primary" id="btnToStep2">
+      Įkelti CV
+      <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
   </div>
 
-  <!-- ── STEP 2: CV UPLOAD ── -->
-  <div id="step2Section" style="display:none">
-    <div class="step2-card">
-      <button class="btn-back" id="btnBack">&#8592; Grįžti prie srities pasirinkimo</button>
+  <!-- STEP 2 -->
+  <div id="step2Section" class="section-panel" style="display:none">
+    <button class="btn-secondary" id="btnBack">
+      ← Grįžti
+    </button>
 
-      <!-- Selected fields summary -->
-      <div class="selected-summary">
-        <div class="selected-summary-icon">&#10003;</div>
-        <div>
-          <div class="selected-summary-text">Pasirinktos sritys:</div>
-          <div class="selected-summary-tags" id="summaryTags"></div>
-        </div>
-      </div>
-
-      <div class="card-title">&#128196; Įkelk savo CV</div>
-      <div class="card-sub" style="margin-bottom:24px;">Įkelk CV failą <strong>arba</strong> įkopijuok tekstą – vieno iš jų pakanka. Pridėk abu ir gausi tikslesnę analizę.</div>
-
-      <!-- Upload zone -->
-      <div class="upload-zone" id="uploadZone">
-        <div class="upload-icon">&#128196;</div>
-        <div class="upload-title">Vilkite failą čia arba spauskite</div>
-        <div class="upload-hint">PDF, Word (.docx), .txt • Maks. 5MB</div>
-        <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt">
-      </div>
-
-      <div class="divider">arba įkopijuokite tekstą</div>
-
-      <div class="form-group">
-        <label class="field-label" for="cvText">CV tekstas <span style="color:var(--grey);font-weight:500;text-transform:none;font-size:11px;">(nebūtina, jei įkėlei failą)</span></label>
-        <textarea class="field-textarea" id="cvText" placeholder="Jei neturi PDF formato failo – įkopijuok savo CV tekstą čia.
-
-Taip pat gali papildyti informacija apie save, ko nėra CV:
-pvz. kokias technologijas naudoji, kokie tavo tikslai..."></textarea>
-        <div class="char-count"><span id="charCount">0</span> simbolių</div>
-      </div>
-
-      <!-- Contacts -->
-      <div class="field-row">
-        <div>
-          <label class="field-label" for="leadName">Vardas ir pavardė</label>
-          <input class="field-input" type="text" id="leadName" placeholder="Jonas Jonaitis">
-        </div>
-        <div>
-          <label class="field-label" for="leadEmail">El. paštas *</label>
-          <input class="field-input" type="email" id="leadEmail" placeholder="jonas@gmail.com">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="field-label" for="leadPhone">Telefono numeris *</label>
-        <input class="field-input" type="tel" id="leadPhone" placeholder="+370 600 00000" autocomplete="tel">
-        <div class="field-error" id="phoneError" style="display:none;color:#E53E3E;font-size:12px;font-weight:600;margin-top:4px;">Prašome įvesti telefono numerį</div>
-      </div>
-      </div>
-
-      <div class="privacy-note">
-        &#128274; Pateikdami duomenis patvirtinate, kad susipažinote su
-        <a href="https://www.vilniuscoding.lt/privatumo-politika/" target="_blank" style="color:var(--blue);font-weight:700;">Vilnius Coding School privatumo politika</a>.
-      </div>
-
-      <button class="btn-analyze" id="btnAnalyze">
-        &#129302; Analizuoti CV su AI
-      </button>
-      <div id="formError" style="color:#C53030;font-size:13px;font-weight:600;margin-top:10px;display:none;"></div>
+    <div class="summary-bar" id="summaryBar">
+      <span class="summary-bar-label">✓ Pasirinkta:</span>
+      <span id="summaryTags"></span>
     </div>
+
+    <div class="section-label">2 žingsnis</div>
+    <div class="section-title">Įkelk savo CV</div>
+    <p class="section-sub">Įkelk failą <strong>arba</strong> įkopijuok tekstą – vieno pakanka. Abu kartu suteikia tikslesnę analizę.</p>
+
+    <div class="upload-zone" id="uploadZone">
+      <div class="upload-icon-wrap">📄</div>
+      <div class="upload-title">Vilkite failą čia arba spauskite</div>
+      <div class="upload-hint">PDF, Word (.docx), .txt · Maks. 5MB</div>
+      <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt">
+    </div>
+
+    <div class="or-divider">arba įkopijuokite tekstą</div>
+
+    <div class="form-group">
+      <label class="field-label" for="cvText">CV tekstas <span>(nebūtina, jei įkėlei failą)</span></label>
+      <textarea class="field-textarea" id="cvText" placeholder="Įkopijuok CV tekstą čia arba pridėk papildomos informacijos apie save – tikslus, technologijas, patirtį..."></textarea>
+      <div class="char-count"><span id="charCount">0</span> simbolių</div>
+    </div>
+
+    <div class="form-row">
+      <div>
+        <label class="field-label" for="leadName">Vardas ir pavardė</label>
+        <input class="field-input" type="text" id="leadName" placeholder="Jonas Jonaitis">
+      </div>
+      <div>
+        <label class="field-label" for="leadEmail">El. paštas *</label>
+        <input class="field-input" type="email" id="leadEmail" placeholder="jonas@gmail.com">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="field-label" for="leadPhone">Telefono numeris *</label>
+      <input class="field-input" type="tel" id="leadPhone" placeholder="+370 600 00000" autocomplete="tel">
+      <div id="phoneError" style="display:none;color:#b91c1c;font-size:12px;font-weight:500;margin-top:4px;">Prašome įvesti telefono numerį</div>
+    </div>
+
+    <p class="privacy-line">🔒 Pateikdami duomenis patvirtinate, kad susipažinote su
+      <a href="https://www.vilniuscoding.lt/privatumo-politika/" target="_blank">Vilnius Coding School privatumo politika</a>.
+    </p>
+
+    <button class="btn-primary" id="btnAnalyze">
+      🤖 Analizuoti CV su AI
+    </button>
+    <div id="formError" class="err-msg"></div>
   </div>
 
   <!-- LOADING -->
-  <div class="loading-card" id="loadingCard">
-    <div class="loading-spinner"></div>
-    <div class="loading-text">AI analizuoja tavo CV...</div>
+  <div class="loading-panel" id="loadingCard">
+    <div class="spinner"></div>
+    <div class="loading-title">AI analizuoja tavo CV...</div>
     <div class="loading-sub">Užtrunka ~15–30 sekundžių</div>
-    <div class="loading-steps">
-      <div class="loading-step" id="step1anim"><span class="step-icon">&#9654;</span> Skaitoma CV struktūra</div>
-      <div class="loading-step" id="step2anim"><span class="step-icon">&#9654;</span> Vertinamas turinys</div>
-      <div class="loading-step" id="step3anim"><span class="step-icon">&#9654;</span> Generuojamos rekomendacijos</div>
-      <div class="loading-step" id="step4anim"><span class="step-icon">&#9654;</span> Ruošiamas rezultatas</div>
+    <div class="loading-steps-list">
+      <div class="l-step" id="step1anim"><span class="l-step-icon">›</span> Skaitoma CV struktūra</div>
+      <div class="l-step" id="step2anim"><span class="l-step-icon">›</span> Vertinamas turinys</div>
+      <div class="l-step" id="step3anim"><span class="l-step-icon">›</span> Generuojamos rekomendacijos</div>
+      <div class="l-step" id="step4anim"><span class="l-step-icon">›</span> Ruošiamas rezultatas</div>
     </div>
   </div>
 
   <!-- RESULTS -->
-  <div class="results-area" id="resultsArea">
-    <div class="score-hero">
+  <div class="results-area section-panel" id="resultsArea">
+
+    <div class="score-panel">
       <div class="score-ring-wrap">
         <svg width="140" height="140" viewBox="0 0 140 140">
-          <circle cx="70" cy="70" r="58" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="10"/>
+          <circle cx="70" cy="70" r="58" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="10"/>
           <circle id="scoreRingFill" cx="70" cy="70" r="58" fill="none"
-            stroke="#7EE07E" stroke-width="10" stroke-linecap="round"
+            stroke="#4ADE80" stroke-width="10" stroke-linecap="round"
             stroke-dasharray="364" stroke-dashoffset="364"/>
         </svg>
         <div class="score-center">
@@ -447,58 +1161,65 @@ pvz. kokias technologijas naudoji, kokie tavo tikslai..."></textarea>
           <div class="score-pct">/ 100</div>
         </div>
       </div>
-      <div class="score-label-big" id="scoreLabelBig"></div>
-      <div class="score-summary" id="scoreSummary"></div>
+      <div class="score-label" id="scoreLabelBig"></div>
+      <p class="score-summary" id="scoreSummary"></p>
     </div>
-    <div class="analysis-grid">
-      <div class="analysis-card strengths-card">
-        <div class="analysis-card-title">&#9989; Stiprybės</div>
+
+    <div class="results-grid">
+      <div class="result-card strengths-card">
+        <div class="result-card-label">✓ Stiprybės</div>
         <ul id="strengthsList"></ul>
       </div>
-      <div class="analysis-card weaknesses-card">
-        <div class="analysis-card-title">&#10060; Silpnybės</div>
+      <div class="result-card weaknesses-card">
+        <div class="result-card-label">✕ Silpnybės</div>
         <ul id="weaknessesList"></ul>
       </div>
     </div>
-    <div class="improvements-card">
-      <div class="analysis-card-title">&#128161; Konkretūs patarimai</div>
+
+    <div class="tips-card">
+      <div class="result-card-label">💡 Konkretūs patarimai</div>
       <div id="improvementsList"></div>
     </div>
-    <div class="ai-readiness">
-      <div class="ai-readiness-title">&#129302; Pasirengimas AI erai</div>
-      <div class="ai-bar-wrap">
-        <div class="ai-bar-bg"><div class="ai-bar-fill" id="aiBarFill" style="width:0%"></div></div>
-        <div class="ai-score-label" id="aiScoreLabel">0%</div>
+
+    <div class="ai-card">
+      <div class="ai-card-label">🤖 Pasirengimas AI erai</div>
+      <div class="bar-row">
+        <div class="bar-bg"><div class="bar-fill" id="aiBarFill"></div></div>
+        <div class="bar-num" id="aiScoreLabel">0%</div>
       </div>
-      <p id="aiReadinessText" style="font-size:14px;color:#4B5063;margin-top:10px;line-height:1.55;"></p>
+      <p class="ai-desc" id="aiReadinessText"></p>
     </div>
-    <div class="missing-skills">
-      <div class="missing-skills-title">&#9888; Trūkstami įgūdžiai</div>
+
+    <div class="skills-missing">
+      <div class="skills-missing-label">⚠ Trūkstami įgūdžiai</div>
       <div class="skill-tags" id="skillTags"></div>
     </div>
 
-    <!-- VCS RECOMMENDATIONS -->
-    <div id="vcsRecsSection" style="margin-bottom:20px;display:none;">
+    <div id="vcsRecsSection" style="display:none">
+      <div class="vcs-section-label">🎓 Rekomenduojami VCS kursai</div>
       <div id="vcsRecsList"></div>
     </div>
 
-    <div class="cta-card">
-      <div class="cta-title">Nori pasikalbėti su mūsų komanda?</div>
-      <div class="cta-sub">Nemokama karjeros konsultacija – aptarsime konkrečius žingsnius būtent tau.</div>
-      <a class="btn-cta" href="https://calendly.com/vcsmokymai/11" target="_blank">&#128197; Registruotis nemokamai</a>
+    <div class="cta-panel">
+      <span class="cta-eyebrow">Kitas žingsnis</span>
+      <div class="cta-title">Pasikalbėk su mūsų komanda</div>
+      <p class="cta-sub">Nemokama karjeros konsultacija – aptarsime konkrečius žingsnius būtent tau.</p>
+      <a class="btn-cta" href="https://calendly.com/vcsmokymai/11" target="_blank">📅 Registruotis nemokamai</a>
     </div>
-    <div style="text-align:center">
-      <button class="btn-restart" id="btnRestart">&#8617; Analizuoti kitą CV</button>
-    </div>
-  </div>
 
-</div>
+    <div style="text-align:center; margin-top: 16px;">
+      <button class="btn-restart" id="btnRestart">↺ Analizuoti kitą CV</button>
+    </div>
+
+  </div><!-- /results -->
+
+</main>
 
 <script>
-// ── STATE ─────────────────────────────────────────────────────
 var selectedFields = [];
+var selectedGoal = '';
 
-// ── STEP 1: FIELD SELECTION ───────────────────────────────────
+// ── FIELD CARDS ──
 document.querySelectorAll('.field-card').forEach(function(card) {
   card.addEventListener('click', function() {
     var field = card.dataset.field;
@@ -515,20 +1236,25 @@ document.querySelectorAll('.field-card').forEach(function(card) {
   });
 });
 
+// ── GOAL OPTIONS ──
+document.querySelectorAll('.goal-option').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.goal-option').forEach(function(b) { b.classList.remove('selected'); });
+    btn.classList.add('selected');
+    selectedGoal = btn.dataset.goal;
+  });
+});
+
+// ── CUSTOM FIELD ──
 document.getElementById('btnAddCustom').addEventListener('click', addCustomField);
 document.getElementById('customField').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') { e.preventDefault(); addCustomField(); }
 });
-
 function addCustomField() {
   var val = document.getElementById('customField').value.trim();
   if (!val) return;
-  if (selectedFields.indexOf(val) === -1) {
-    selectedFields.push(val);
-    renderTags();
-  }
+  if (selectedFields.indexOf(val) === -1) { selectedFields.push(val); renderTags(); }
   document.getElementById('customField').value = '';
-  document.getElementById('step1Error').style.display = 'none';
 }
 
 function renderTags() {
@@ -536,179 +1262,149 @@ function renderTags() {
   if (selectedFields.length === 0) { wrap.style.display = 'none'; return; }
   wrap.style.display = 'flex';
   wrap.innerHTML = selectedFields.map(function(f, i) {
-    return '<div class="sel-tag">' + f + '<button class="sel-tag-x" data-idx="' + i + '">×</button></div>';
+    return '<div class="tag">' + f + '<button class="tag-x" data-idx="' + i + '">×</button></div>';
   }).join('');
-  wrap.querySelectorAll('.sel-tag-x').forEach(function(btn) {
+  wrap.querySelectorAll('.tag-x').forEach(function(btn) {
     btn.addEventListener('click', function(e) {
       e.stopPropagation();
-      var idx = parseInt(btn.dataset.idx);
-      var removed = selectedFields[idx];
-      selectedFields.splice(idx, 1);
-      // Unselect card if it was a preset
-      document.querySelectorAll('.field-card').forEach(function(card) {
-        if (card.dataset.field === removed) card.classList.remove('selected');
+      var removed = selectedFields[parseInt(btn.dataset.idx)];
+      selectedFields.splice(parseInt(btn.dataset.idx), 1);
+      document.querySelectorAll('.field-card').forEach(function(c) {
+        if (c.dataset.field === removed) c.classList.remove('selected');
       });
       renderTags();
     });
   });
 }
 
-// ── STEP 1 → STEP 2 ──────────────────────────────────────────
+// ── STEP 1 → 2 ──
 document.getElementById('btnToStep2').addEventListener('click', function() {
   if (selectedFields.length === 0) {
     document.getElementById('step1Error').style.display = 'block';
     return;
   }
-  // Show step 2
   document.getElementById('step1Section').style.display = 'none';
-  document.getElementById('step2Section').style.display = 'block';
-  window.scrollTo({top:0,behavior:'smooth'});
 
-  // Update stepper
-  document.getElementById('sc1').className = 'step-circle done';
-  document.getElementById('sc1').textContent = '✓';
-  document.getElementById('sc2').className = 'step-circle active';
-  document.getElementById('sl2').className = 'step-label active';
-  document.getElementById('stepLine').className = 'step-line done';
+  var s2 = document.getElementById('step2Section');
+  s2.classList.remove('slide-back');
+  s2.style.display = 'block';
+  void s2.offsetWidth; // reflow to restart animation
+  s2.style.animation = 'none'; s2.offsetWidth; s2.style.animation = '';
 
-  // Render summary tags
-  var st = document.getElementById('summaryTags');
-  st.innerHTML = selectedFields.map(function(f) {
-    return '<span class="summary-tag">' + f + '</span>';
+  // Summary bar
+  var tagsHtml = selectedFields.map(function(f) {
+    return '<span class="summary-bar-tag">' + f + '</span>';
   }).join('');
+  if (selectedGoal) tagsHtml += '<span class="summary-bar-tag" style="background:#ededfc;color:#3D3FE8;border-color:rgba(61,63,232,0.2)">🎯 ' + selectedGoal + '</span>';
+  document.getElementById('summaryTags').innerHTML = tagsHtml;
+
+  // Step tabs
+  document.getElementById('stepTab1').classList.remove('active'); document.getElementById('stepTab1').classList.add('done');
+  document.getElementById('sc1').textContent = '✓';
+  document.getElementById('stepTab2').classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 document.getElementById('btnBack').addEventListener('click', function() {
   document.getElementById('step2Section').style.display = 'none';
-  document.getElementById('step1Section').style.display = 'block';
-  document.getElementById('sc1').className = 'step-circle active';
+
+  var s1 = document.getElementById('step1Section');
+  s1.classList.add('slide-back');
+  s1.style.display = 'block';
+  void s1.offsetWidth;
+  s1.style.animation = 'none'; s1.offsetWidth; s1.style.animation = '';
+
+  document.getElementById('stepTab1').classList.add('active'); document.getElementById('stepTab1').classList.remove('done');
   document.getElementById('sc1').textContent = '1';
-  document.getElementById('sc2').className = 'step-circle inactive';
-  document.getElementById('sl2').className = 'step-label';
-  document.getElementById('stepLine').className = 'step-line';
-  window.scrollTo({top:0,behavior:'smooth'});
+  document.getElementById('stepTab2').classList.remove('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
-// ── FILE UPLOAD ───────────────────────────────────────────────
+// ── PDF.JS ──
+if (typeof pdfjsLib !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
+// ── FILE UPLOAD ──
 var uploadZone = document.getElementById('uploadZone');
-uploadZone.addEventListener('click', function() { document.getElementById('fileInput').click(); });
+var fileInput = document.getElementById('fileInput');
+uploadZone.addEventListener('click', function() { fileInput.click(); });
 uploadZone.addEventListener('dragover', function(e) { e.preventDefault(); uploadZone.classList.add('drag-over'); });
 uploadZone.addEventListener('dragleave', function() { uploadZone.classList.remove('drag-over'); });
 uploadZone.addEventListener('drop', function(e) {
-  e.preventDefault();
-  uploadZone.classList.remove('drag-over');
-  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+  e.preventDefault(); uploadZone.classList.remove('drag-over');
+  var file = e.dataTransfer.files[0];
+  if (file) handleFile(file);
 });
-document.getElementById('fileInput').addEventListener('change', function() {
-  if (this.files[0]) handleFile(this.files[0]);
+fileInput.addEventListener('change', function() {
+  if (fileInput.files[0]) handleFile(fileInput.files[0]);
 });
 
 function handleFile(file) {
-  var name = file.name;
-  var type = file.type;
+  if (file.size > 5 * 1024 * 1024) { alert('Failas per didelis (maks. 5MB)'); return; }
+  uploadZone.querySelector('.upload-title').textContent = '✓ ' + file.name;
+  uploadZone.style.borderColor = '#4ADE80';
+  uploadZone.style.background = '#f0faf4';
 
-  // TXT - read directly
-  if (type === 'text/plain') {
+  if (file.type === 'application/pdf') {
     var reader = new FileReader();
     reader.onload = function(e) {
-      document.getElementById('cvText').value = e.target.result;
-      document.getElementById('charCount').textContent = e.target.result.length;
-      updateUploadZone(name + ' ✔ Nuskaitytas');
-    };
-    reader.readAsText(file);
-    return;
-  }
-
-  // PDF - extract text with PDF.js
-  if (type === 'application/pdf' || name.toLowerCase().endsWith('.pdf')) {
-    updateUploadZone(name + ' ⏳ Skaitoma...');
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      var typedArray = new Uint8Array(e.target.result);
-      // Configure PDF.js worker
-      if (typeof pdfjsLib !== 'undefined') {
-        pdfjsLib.GlobalWorkerOptions.workerSrc =
-          'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-        pdfjsLib.getDocument({ data: typedArray }).promise.then(function(pdf) {
-          var totalPages = pdf.numPages;
-          var textPromises = [];
-          for (var i = 1; i <= totalPages; i++) {
-            textPromises.push(
-              pdf.getPage(i).then(function(page) {
-                return page.getTextContent().then(function(tc) {
-                  return tc.items.map(function(item) { return item.str; }).join(' ');
-                });
-              })
-            );
-          }
-          Promise.all(textPromises).then(function(pages) {
-            var fullText = pages.join(' ');
-            document.getElementById('cvText').value = fullText;
-            document.getElementById('charCount').textContent = fullText.length;
-            updateUploadZone(name + ' ✔ Nuskaitytas (' + totalPages + ' psl.)');
+      pdfjsLib.getDocument({ data: e.target.result }).promise.then(function(pdf) {
+        var pages = [];
+        for (var i = 1; i <= Math.min(pdf.numPages, 6); i++) { pages.push(i); }
+        Promise.all(pages.map(function(n) {
+          return pdf.getPage(n).then(function(p) {
+            return p.getTextContent().then(function(tc) {
+              return tc.items.map(function(i) { return i.str; }).join(' ');
+            });
           });
-        }).catch(function(err) {
-          updateUploadZone(name + ' ⚠️ PDF klaida');
-          showError('PDF nuskaityti nepavyko. Pabandykite įkopijuoti tekstą į lauką apačioje.');
+        })).then(function(texts) {
+          var combined = texts.join('\n');
+          var existing = document.getElementById('cvText').value;
+          document.getElementById('cvText').value = existing ? existing + '\n\n' + combined : combined;
+          document.getElementById('charCount').textContent = document.getElementById('cvText').value.length;
         });
-      } else {
-        // PDF.js not loaded fallback
-        updateUploadZone(name + ' ✔ Įkeltas');
-        showError('PDF skaitymas neprieinamas. Prašome įkopijuoti CV tekstą į lauką apačioje.');
-      }
+      });
     };
     reader.readAsArrayBuffer(file);
-    return;
+  } else {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var existing = document.getElementById('cvText').value;
+      document.getElementById('cvText').value = existing ? existing + '\n\n' + e.target.result : e.target.result;
+      document.getElementById('charCount').textContent = document.getElementById('cvText').value.length;
+    };
+    reader.readAsText(file);
   }
-
-  // Word .docx - can't parse in browser without library, ask user to copy-paste
-  if (name.toLowerCase().endsWith('.docx') || name.toLowerCase().endsWith('.doc')) {
-    updateUploadZone(name + ' ✔ Įkeltas');
-    document.getElementById('cvText').placeholder = 'Word failas Įkeltas. Prašome nukopijuoti tekstą: Ctrl+A → Ctrl+C Word dokumente, tada Ctrl+V čia.';
-    showError('Word dokumento turinys – prašome nukopijuoti tekstą į lauką apačioje (Ctrl+A → Ctrl+C → Ctrl+V).');
-    return;
-  }
-
-  // Other files
-  updateUploadZone(name + ' ✔ Įkeltas');
-}
-
-function updateUploadZone(name) {
-  uploadZone.innerHTML = '<div class="upload-icon">&#10004;</div><div class="upload-title">' + name + '</div><div class="upload-hint">Spausk norėdamas pakeisti</div><input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt">';
-  document.getElementById('fileInput').addEventListener('change', function() { if (this.files[0]) handleFile(this.files[0]); });
 }
 
 document.getElementById('cvText').addEventListener('input', function() {
   document.getElementById('charCount').textContent = this.value.length;
 });
 
-// ── ANALYZE ───────────────────────────────────────────────────
-document.getElementById('btnAnalyze').addEventListener('click', analyze);
-
-async function analyze() {
+// ── ANALYZE ──
+document.getElementById('btnAnalyze').addEventListener('click', async function() {
   var cvText = document.getElementById('cvText').value.trim();
   var email = document.getElementById('leadEmail').value.trim();
   var name = document.getElementById('leadName').value.trim();
-  var phone = document.getElementById('leadPhone') ? document.getElementById('leadPhone').value.trim() : '';
+  var phone = document.getElementById('leadPhone').value.trim();
 
-  if (cvText.length < 30) {
-    showError('CV tekstas tušcias. PDF turėjo būti automatiškai nuskaitytas – jei nepavyko, nukopijuokite tekstą į lauką apačioje.');
-    return;
-  }
-  if (!email || email.indexOf('@') < 1) {
-    showError('Prašome įvesti teisingą el. paštą.');
-    return;
-  }
-  if (!phone) {
-    showError('Prašome įvesti telefono numerį.');
-    return;
-  }
-
+  if (!cvText || cvText.length < 30) { showError('Prašome įkelti CV arba įvesti bent 30 simbolių CV tekstą.'); return; }
+  if (!email) { showError('Prašome įvesti el. pašto adresą.'); return; }
+  if (!phone) { document.getElementById('phoneError').style.display = 'block'; showError('Prašome įvesti telefono numerį.'); return; }
+  document.getElementById('phoneError').style.display = 'none';
   hideError();
+
   document.getElementById('step2Section').style.display = 'none';
   document.getElementById('loadingCard').style.display = 'block';
-  window.scrollTo({top:0,behavior:'smooth'});
+
+  // Step tabs
+  document.getElementById('stepTab2').classList.remove('active'); document.getElementById('stepTab2').classList.add('done');
+  document.getElementById('sc2').textContent = '✓';
+  document.getElementById('stepTab3').classList.add('active');
+
   startLoadingSteps();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 
   try {
     var response = await fetch('/api/analyze', {
@@ -717,12 +1413,12 @@ async function analyze() {
       body: JSON.stringify({
         cvText: cvText,
         targetFields: selectedFields,
+        careerGoal: selectedGoal,
         name: name,
         email: email,
         phone: phone
       })
     });
-
     var data = await response.json();
     if (!data.success || !data.analysis) throw new Error(data.error || 'Analizė nepavyko');
     showResults(data.analysis);
@@ -731,21 +1427,23 @@ async function analyze() {
     document.getElementById('step2Section').style.display = 'block';
     showError('Klaida: ' + error.message);
   }
-}
+});
 
 function startLoadingSteps() {
   [['step1anim',500],['step2anim',2000],['step3anim',4500],['step4anim',8000]].forEach(function(s) {
     setTimeout(function() {
       var el = document.getElementById(s[0]);
-      if (el) { el.classList.add('done'); el.querySelector('.step-icon').textContent = '✓'; }
+      if (el) { el.classList.add('done'); el.querySelector('.l-step-icon').textContent = '✓'; }
     }, s[1]);
   });
 }
 
 function showResults(a) {
   document.getElementById('loadingCard').style.display = 'none';
-  document.getElementById('resultsArea').style.display = 'block';
-  window.scrollTo({top:0,behavior:'smooth'});
+  var ra = document.getElementById('resultsArea');
+  ra.style.display = 'block';
+  ra.style.animation = 'none'; ra.offsetWidth; ra.style.animation = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 
   var score = a.overallScore || 0;
   setTimeout(function() {
@@ -761,18 +1459,16 @@ function showResults(a) {
   document.getElementById('strengthsList').innerHTML = (a.strengths||[]).map(function(s){return '<li>'+s+'</li>';}).join('');
   document.getElementById('weaknessesList').innerHTML = (a.weaknesses||[]).map(function(w){return '<li>'+w+'</li>';}).join('');
   document.getElementById('improvementsList').innerHTML = (a.improvements||[]).map(function(item,i){
-    return '<div class="improvement-item"><div class="imp-num">'+(i+1)+'</div><div><div class="imp-title">'+item.title+'</div><div class="imp-desc">'+item.description+'</div></div></div>';
+    return '<div class="tip-item"><div class="tip-num">'+(i+1)+'</div><div><div class="tip-title">'+item.title+'</div><div class="tip-desc">'+item.description+'</div></div></div>';
   }).join('');
 
-  // AI Readiness - use aiReadinessScore and aiReadinessComment from API
   var ai = a.aiReadinessScore || a.aiReadiness || 0;
   setTimeout(function() { document.getElementById('aiBarFill').style.width = ai + '%'; }, 400);
   document.getElementById('aiScoreLabel').textContent = ai + '%';
-  // Use AI-generated comment if available, otherwise fallback
   var aiComment = a.aiReadinessComment ||
     (ai >= 75 ? 'Tavo CV atspindi stiprų skaitmeninį kompetencijų lygį – labai geras pagrindas AI erai.' :
-     ai >= 50 ? 'Turi geru įgūdžių, tačiau AI įrankiai dar galėtų būti labiau integruoti į kasdienį darbą.' :
-     ai >= 25 ? 'Matome potencialą – papildę CV AI ir skaitmeninėmis kompetencijomis, atsiverš daug naujų galimybių.' :
+     ai >= 50 ? 'Turi gerų įgūdžių, tačiau AI įrankiai dar galėtų būti labiau integruoti.' :
+     ai >= 25 ? 'Matome potencialą – papildę CV AI kompetencijomis, atsivers daug galimybių.' :
      'AI ir skaitmeninės kompetencijos šiandien tampa būtinybė – dabar pats geriausias metas pradėti.');
   document.getElementById('aiReadinessText').textContent = aiComment;
 
@@ -780,26 +1476,20 @@ function showResults(a) {
     return '<span class="skill-tag">'+s+'</span>';
   }).join('');
 
-  // VCS Recommendations
   var recs = a.vcsRecommendations || [];
   var recsSection = document.getElementById('vcsRecsSection');
-  var recsList = document.getElementById('vcsRecsList');
   if (recs.length > 0) {
-    var title = a.shouldChangeCareer
-      ? '&#127891; Rekomenduojami VCS mokymai karjeros keitimui'
-      : '&#9889; Rekomenduojami VCS mokymai tavo srities gilinimui';
-    recsList.innerHTML = '<div class="vcs-recs-title">' + title + '</div>' +
-      recs.map(function(r) {
-        var isSkill = r.type === 'skill_upgrade';
-        return '<div class="vcs-rec-card ' + (isSkill ? 'skill-upgrade' : 'career-change') + '">' +
-          '<div class="vcs-rec-body">' +
-          '<div><span class="vcs-rec-badge ' + (isSkill ? 'skill' : 'career') + '">' +
-          (isSkill ? '&#9989; Gilinti įgūdžius' : '&#128640; Karjeros keitimas') + '</span></div>' +
-          '<div class="vcs-rec-title">' + r.title + '</div>' +
-          '<div class="vcs-rec-reason">' + r.reason + '</div>' +
-          '<a class="vcs-rec-link ' + (isSkill ? 'skill-link' : '') + '" href="' + r.courseUrl + '" target="_blank">Peržiūrėti kursą →</a>' +
-          '</div></div>';
-      }).join('');
+    document.getElementById('vcsRecsList').innerHTML = recs.map(function(r) {
+      var isSkill = r.type === 'skill_upgrade';
+      return '<div class="vcs-rec ' + (isSkill ? 'skill' : 'career') + '">' +
+        '<div class="vcs-rec-body">' +
+        '<span class="vcs-badge ' + (isSkill ? 'skill-b' : 'career-b') + '">' +
+        (isSkill ? '✓ Gilinti įgūdžius' : '🚀 Karjeros keitimas') + '</span>' +
+        '<div class="vcs-rec-title">' + r.title + '</div>' +
+        '<div class="vcs-rec-reason">' + r.reason + '</div>' +
+        '<a class="vcs-rec-btn ' + (isSkill ? 'skill-btn' : '') + '" href="' + r.courseUrl + '" target="_blank">Peržiūrėti kursą →</a>' +
+        '</div></div>';
+    }).join('');
     recsSection.style.display = 'block';
   } else {
     recsSection.style.display = 'none';
@@ -817,21 +1507,27 @@ function hideError() {
 
 document.getElementById('btnRestart').addEventListener('click', function() {
   selectedFields = [];
+  selectedGoal = '';
   document.querySelectorAll('.field-card').forEach(function(c){c.classList.remove('selected');});
+  document.querySelectorAll('.goal-option').forEach(function(b){b.classList.remove('selected');});
   document.getElementById('selectedTags').style.display = 'none';
   document.getElementById('selectedTags').innerHTML = '';
   document.getElementById('cvText').value = '';
   document.getElementById('charCount').textContent = '0';
   document.getElementById('leadEmail').value = '';
   document.getElementById('leadName').value = '';
+  document.getElementById('leadPhone').value = '';
   document.getElementById('resultsArea').style.display = 'none';
-  document.getElementById('step1Section').style.display = 'block';
-  document.getElementById('sc1').className = 'step-circle active';
+  var s1 = document.getElementById('step1Section');
+  s1.classList.remove('slide-back');
+  s1.style.display = 'block';
+  s1.style.animation = 'none'; s1.offsetWidth; s1.style.animation = '';
+  document.getElementById('stepTab1').className = 'step-tab active';
   document.getElementById('sc1').textContent = '1';
-  document.getElementById('sc2').className = 'step-circle inactive';
-  document.getElementById('sl1').className = 'step-label active';
-  document.getElementById('sl2').className = 'step-label';
-  document.getElementById('stepLine').className = 'step-line';
+  document.getElementById('stepTab2').className = 'step-tab';
+  document.getElementById('sc2').textContent = '2';
+  document.getElementById('stepTab3').className = 'step-tab';
+  document.getElementById('sc3').textContent = '3';
   window.scrollTo({top:0,behavior:'smooth'});
 });
 </script>
