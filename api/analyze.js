@@ -77,14 +77,19 @@ async function appendToSheets(data) {
   const SHEET_NAME     = 'CV_Leads_Analyzer';
 
   const serviceEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-  const privateKey   = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+  const privateKey = process.env.GOOGLE_PRIVATE_KEY
+    ?.replace(/\\n/g, '\n')
+    ?.replace(/^["']|["']$/g, '')
+    ?.trim();
 
   if (!serviceEmail || !privateKey) {
     console.warn('Google Sheets credentials missing');
     return;
   }
 
+  console.log('Sheets: getting token for', serviceEmail);
   const token = await getAccessToken(serviceEmail, privateKey);
+  console.log('Sheets: token OK, appending row...');
 
   const row = [
     data.date,
@@ -97,19 +102,25 @@ async function appendToSheets(data) {
     data.aiScore
   ];
 
-  const response = await fetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(SHEET_NAME)}!A1:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ values: [row] })
-    }
-  );
+  const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(SHEET_NAME)}!A1:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
+  console.log('Sheets: calling', sheetsUrl);
+
+  const response = await fetch(sheetsUrl, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ values: [row] })
+  });
+
+  const responseText = await response.text();
+  console.log('Sheets: status', response.status, responseText.slice(0, 400));
 
   if (!response.ok) {
+    throw new Error(`Sheets append failed: ${response.status} - ${responseText}`);
+  }
+  console.log('Sheets: row saved successfully');
     const err = await response.text();
     throw new Error(`Sheets append failed: ${response.status} - ${err}`);
   }
