@@ -51,15 +51,25 @@ body {
   gap: 16px;
 }
 .logo {
-  display: flex; align-items: center;
+  display: flex; align-items: center; gap: 10px;
   text-decoration: none;
   flex-shrink: 0;
 }
 .logo svg {
-  height: 36px;
+  height: 32px;
   width: auto;
   display: block;
+  flex-shrink: 0;
 }
+.logo-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px; font-weight: 700;
+  color: var(--vcs-navy);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+@media(max-width:560px) { .logo-name { display: none; } }
 .nav-right {
   display: flex; align-items: center; gap: 10px;
 }
@@ -175,7 +185,7 @@ body {
 }
 .hero-stat-num {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 22px; font-weight: 800;
+  font-size: clamp(14px, 2vw, 22px); font-weight: 800;
   color: #fff;
   letter-spacing: -0.02em;
 }
@@ -185,11 +195,12 @@ body {
 .steps-wrap {
   background: var(--surface-2);
   border-bottom: 1px solid var(--border);
-  padding: 0 56px;
+  padding: 0;
   position: sticky; top: 0; z-index: 190;
 }
 .steps-inner {
   max-width: 720px; margin: 0 auto;
+  padding: 0 40px;
   display: flex; align-items: stretch;
 }
 .step-tab {
@@ -922,13 +933,14 @@ body {
         <path d="M368.6,194.66c-12.54,2.65-17.52,7.35-20.89,10.72-5.62-2.25-18.75-1.61-22.82-.21-6.51-6.44-10.82-8.58-27.03-11.66-14.46-2.76-40.79-2.33-62.1,1.84-9.33,1.83-17.88,8.94-17.88,18.44,0,0-1.37,37.85,10.89,52.82,3.71,5.46,10.32,8.82,20.14,10.28,22.21,3.3,40.26,1.65,50.4-.22,10.14-1.88,20.03-9.31,23.82-24.35,3.79-15.04,4.18-26.52,4.42-29.53.1-1.3.7-1.09,1.2-1.12,5.35-.37,10.23-.27,15.01.04,1.13.07,1.42.62,1.48,1.17.23,2.14,2.39,24.47,4.29,29.65,3.49,9.55,8.29,16.06,14.53,19.67,5.71,3.3,10.59,5.35,19.19,5.81,8.6.46,27.66.08,38.32-.71,10.65-.79,16.07-3.27,21.42-9.06,13.96-17.05,12.81-46.26,12.42-55.91s-9.25-14.84-18.32-17.1c-17.33-4.33-50.48-4.36-68.49-.56ZM306.35,247.69c-1.79,5.15-5.59,9.39-10.6,11.55-.29.12-.52.21-.67.25-15.08,3.65-41.25,1.29-45.49-.06-2.03-.64-7.75-1.38-10.09-9.73-1.91-6.8-4.55-15.13-5.1-31.19-.09-2.63-.01-5.13,3.55-5.82,25.11-4.81,58.26-4.03,70.05.85,1.39.58,2.41,1.83,2.65,3.32.99,6.13-.84,20.87-4.3,30.82ZM433.53,250.03c-2.82,9.06-7.81,9.01-13.75,9.57-7.96.75-31.18,1.9-37.05.88-9.49-1.66-13-3.87-15.82-11.39-4.26-17.74-4.39-25.99-4.62-30.05-.13-2.3,1.29-4.42,3.5-5.11,25.48-8,57.67-4.02,67.42-1.53,2.01.52,5.04.84,5.2,4.03.16,3.18-1.94,24.17-4.88,33.6Z"/>
       </g>
     </svg>
+    <span class="logo-name">Vilnius Coding School</span>
   </a>
   <div class="nav-right">
     <a href="https://www.vilniuscoding.lt/" target="_blank" class="nav-home-btn">
       <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       <span>vilniuscoding.lt</span>
     </a>
-    <div class="nav-tag">Nemokama analizė</div>
+    <div class="nav-tag">CV Analizė</div>
   </div>
 </header>
 
@@ -937,8 +949,8 @@ body {
   <div class="hero-grid"></div>
   <div class="hero-glow"></div>
   <div class="hero-inner">
-    <h1>Sužinok, kur<br>tavo <span class="accent">karjera</span><br>gali nueiti</h1>
-    <p class="hero-desc">Įkelk CV ir gauk personalizuotą analizę – konkrečias rekomendacijas, AI parengties rodiklį ir VCS mokymo kursus pagal tavo tikslus.</p>
+    <h1>Sužinok, ar tavo CV<br><span class="accent">konkurencingas</span><br>šiandien</h1>
+    <p class="hero-desc">Įkelk CV, pasirink sritį. AI išanalizuos turinį pagal realius rinkos standartus ir gausite realius patarimus, ką daryti siekiant tikslo.</p>
     <div class="hero-stats">
       <div class="hero-stat">
         <div class="hero-stat-num">30 sek.</div>
@@ -949,7 +961,7 @@ body {
         <div class="hero-stat-label">Nemokamai</div>
       </div>
       <div class="hero-stat">
-        <div class="hero-stat-num">AI</div>
+        <div class="hero-stat-num">Pagal sritį</div>
         <div class="hero-stat-label">Personalizuota</div>
       </div>
     </div>
@@ -980,8 +992,8 @@ body {
   <!-- STEP 1 -->
   <div id="step1Section" class="section-panel">
     <div class="section-label">1 žingsnis</div>
-    <div class="section-title">Kuria kryptimi nori judėti?</div>
-    <p class="section-sub">Pasirink vieną ar daugiau sričių – pagal jas pritaikysime CV analizę ir rekomendacijas.</p>
+    <div class="section-title">Kokioje srityje nori tobulėti?</div>
+    <p class="section-sub">Analizė bus pritaikyta pagal tai, kokioje srityje dirbi ar planuoji dirbti.</p>
 
     <div class="fields-grid">
       <button class="field-card" data-field="Web programavimas su AI">
@@ -1045,23 +1057,23 @@ body {
     <!-- CAREER GOAL QUESTION -->
     <div class="goal-section">
       <div class="goal-label">Padėk mums geriau suprasti tave</div>
-      <div class="goal-question">Koks tavo dabartinis karjeros tikslas?</div>
+      <div class="goal-question">Kur dabar esi savo karjeros kelyje?</div>
       <div class="goal-options">
-        <button class="goal-option" data-goal="Tobulinti įgūdžius">
+        <button class="goal-option" data-goal="Noriu tobulinti įgūdžius">
           <div class="goal-option-dot"></div>
-          <div class="goal-option-text">Tobulinti įgūdžius</div>
+          <div class="goal-option-text">Noriu tobulinti įgūdžius</div>
         </button>
-        <button class="goal-option" data-goal="Keisti karjerą visiškai">
+        <button class="goal-option" data-goal="Planuoju keisti karjerą">
           <div class="goal-option-dot"></div>
-          <div class="goal-option-text">Keisti karjerą visiškai</div>
+          <div class="goal-option-text">Planuoju keisti karjerą</div>
         </button>
-        <button class="goal-option" data-goal="Tik domiuosi galimybėmis">
+        <button class="goal-option" data-goal="Domiuosi IT, bet dar nežinau ar tai man">
           <div class="goal-option-dot"></div>
-          <div class="goal-option-text">Tik domiuosi galimybėmis</div>
+          <div class="goal-option-text">Domiuosi IT, bet dar nežinau ar tai man</div>
         </button>
-        <button class="goal-option" data-goal="Svarstau, bet dar neapsisprendžiau">
+        <button class="goal-option" data-goal="Svarstau apie pokyčius, bet neapsisprendžiu">
           <div class="goal-option-dot"></div>
-          <div class="goal-option-text">Svarstau, bet dar neapsisprendžiau</div>
+          <div class="goal-option-text">Svarstau apie pokyčius, bet neapsisprendžiu</div>
         </button>
       </div>
     </div>
@@ -1071,7 +1083,7 @@ body {
     </div>
 
     <button class="btn-primary" id="btnToStep2">
-      Įkelti CV
+      CV Įkėlimas
       <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
     </button>
   </div>
@@ -1127,7 +1139,7 @@ body {
     </p>
 
     <button class="btn-primary" id="btnAnalyze">
-      🤖 Analizuoti CV su AI
+      Gauti Analizę →
     </button>
     <div id="formError" class="err-msg"></div>
   </div>
@@ -1167,22 +1179,22 @@ body {
 
     <div class="results-grid">
       <div class="result-card strengths-card">
-        <div class="result-card-label">✓ Stiprybės</div>
+        <div class="result-card-label">✓ Kas veikia</div>
         <ul id="strengthsList"></ul>
       </div>
       <div class="result-card weaknesses-card">
-        <div class="result-card-label">✕ Silpnybės</div>
+        <div class="result-card-label">↗ Kur yra erdvės</div>
         <ul id="weaknessesList"></ul>
       </div>
     </div>
 
     <div class="tips-card">
-      <div class="result-card-label">💡 Konkretūs patarimai</div>
+      <div class="result-card-label">Tobulinimo kryptys</div>
       <div id="improvementsList"></div>
     </div>
 
     <div class="ai-card">
-      <div class="ai-card-label">🤖 Pasirengimas AI erai</div>
+      <div class="ai-card-label">Skaitmeninių įgūdžių lygis</div>
       <div class="bar-row">
         <div class="bar-bg"><div class="bar-fill" id="aiBarFill"></div></div>
         <div class="bar-num" id="aiScoreLabel">0%</div>
@@ -1191,20 +1203,20 @@ body {
     </div>
 
     <div class="skills-missing">
-      <div class="skills-missing-label">⚠ Trūkstami įgūdžiai</div>
+      <div class="skills-missing-label">Įgūdžiai, kuriuos verta ugdyti</div>
       <div class="skill-tags" id="skillTags"></div>
     </div>
 
     <div id="vcsRecsSection" style="display:none">
-      <div class="vcs-section-label">🎓 Rekomenduojami VCS kursai</div>
+      <div class="vcs-section-label">VCS mokymų kelias pagal tavo profilį</div>
       <div id="vcsRecsList"></div>
     </div>
 
     <div class="cta-panel">
       <span class="cta-eyebrow">Kitas žingsnis</span>
-      <div class="cta-title">Pasikalbėk su mūsų komanda</div>
-      <p class="cta-sub">Nemokama karjeros konsultacija – aptarsime konkrečius žingsnius būtent tau.</p>
-      <a class="btn-cta" href="https://calendly.com/vcsmokymai/11" target="_blank">📅 Registruotis nemokamai</a>
+      <div class="cta-title">Individualus karjeros pokalbis</div>
+      <p class="cta-sub">30 minučių. Konkrečiai aptarsime tavo situaciją ir mokymosi galimybes – be spaudimo, be nutylėjimų.</p>
+      <a class="btn-cta" href="https://calendly.com/vcsmokymai/11" target="_blank">Registruotis pokalbiui →</a>
     </div>
 
     <div style="text-align:center; margin-top: 16px;">
