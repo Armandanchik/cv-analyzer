@@ -28,7 +28,7 @@ module.exports = async function handler(req, res) {
     const prompt = buildPrompt(cvText, role);
 
     const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${GEMINI_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -51,7 +51,13 @@ module.exports = async function handler(req, res) {
     if (!rawText) throw new Error('Empty response from Gemini');
 
     const cleaned = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-    const analysis = JSON.parse(cleaned);
+    let analysis;
+    try {
+      analysis = JSON.parse(cleaned);
+    } catch (parseErr) {
+      console.error('JSON parse failed. Raw text:', rawText.slice(0, 500));
+      throw new Error('Failed to parse Gemini response as JSON');
+    }
 
     appendToSheets({
       name:         name        || '',
