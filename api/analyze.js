@@ -1,32 +1,32 @@
 // api/analyze.js - Vercel Serverless Function
-
+ 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
-
+ 
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
+ 
   try {
     const { cvText, targetFields, careerGoal, name, email, phone } = req.body;
-
+ 
     const role = Array.isArray(targetFields) && targetFields.length > 0
       ? targetFields.join(', ')
       : 'IT / technologijų sritis';
-
+ 
     if (!cvText || cvText.length < 30) {
       return res.status(400).json({ error: 'CV text is too short' });
     }
-
+ 
     const GEMINI_KEY = process.env.GEMINI_API_KEY;
     if (!GEMINI_KEY) {
       return res.status(500).json({ error: 'API key not configured' });
     }
-
+ 
     const prompt = buildPrompt(cvText, role);
-
+ 
     const geminiResponse = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${GEMINI_KEY}`,
       {
@@ -38,18 +38,18 @@ module.exports = async function handler(req, res) {
         })
       }
     );
-
+ 
     if (!geminiResponse.ok) {
       const errText = await geminiResponse.text();
       console.error('Gemini error:', geminiResponse.status, errText);
       throw new Error(`Gemini API error: ${geminiResponse.status} - ${errText}`);
     }
-
+ 
     const geminiData = await geminiResponse.json();
     console.log('Gemini response received, parsing...');
     const rawText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!rawText) throw new Error('Empty response from Gemini');
-
+ 
     const cleaned = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
     let analysis;
     try {
@@ -58,7 +58,7 @@ module.exports = async function handler(req, res) {
       console.error('JSON parse failed. Raw text:', rawText.slice(0, 500));
       throw new Error('Failed to parse Gemini response as JSON');
     }
-
+ 
     appendToSheets({
       name:         name        || '',
       email:        email       || '',
@@ -69,35 +69,35 @@ module.exports = async function handler(req, res) {
       aiScore:      analysis.aiReadinessScore ?? '',
       date:         new Date().toLocaleString('lt-LT', { timeZone: 'Europe/Vilnius' })
     }).catch(err => console.error('Sheets error:', err));
-
+ 
     return res.status(200).json({ success: true, analysis });
-
+ 
   } catch (error) {
     console.error('Analysis error:', error);
     return res.status(500).json({ error: 'Analysis failed', message: error.message });
   }
 };
-
+ 
 // ── SHEETS APPEND ──
 async function appendToSheets(data) {
   const SPREADSHEET_ID = '13sSTO7sniHphcIVDhik2rxNU3rR7EsSGcG133d7iqD8';
   const SHEET_NAME     = 'CV_Leads_Analyzer';
-
+ 
   const serviceEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
   const privateKey   = process.env.GOOGLE_PRIVATE_KEY
     ?.replace(/\\n/g, '\n')
     ?.replace(/^["']|["']$/g, '')
     ?.trim();
-
+ 
   if (!serviceEmail || !privateKey) {
     console.warn('Sheets: credentials missing');
     return;
   }
-
+ 
   console.log('Sheets: getting token for', serviceEmail);
   const token = await getAccessToken(serviceEmail, privateKey);
   console.log('Sheets: token OK, appending row...');
-
+ 
   const row = [
     data.date,
     data.name,
@@ -108,10 +108,10 @@ async function appendToSheets(data) {
     data.overallScore,
     data.aiScore
   ];
-
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(SHEET_NAME)}!A1:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
+ 
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(SHEET_NAME)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
   console.log('Sheets: calling', url);
-
+ 
   const response = await fetch(url, {
     method: 'POST',
     headers: {
@@ -120,17 +120,17 @@ async function appendToSheets(data) {
     },
     body: JSON.stringify({ values: [row] })
   });
-
+ 
   const responseText = await response.text();
   console.log('Sheets: status', response.status, responseText.slice(0, 400));
-
+ 
   if (!response.ok) {
     throw new Error(`Sheets append failed: ${response.status} - ${responseText}`);
   }
-
+ 
   console.log('Sheets: row saved successfully');
 }
-
+ 
 // ── JWT / ACCESS TOKEN ──
 async function getAccessToken(serviceEmail, privateKey) {
   const now   = Math.floor(Date.now() / 1000);
@@ -141,9 +141,9 @@ async function getAccessToken(serviceEmail, privateKey) {
     iat:   now,
     exp:   now + 3600
   };
-
+ 
   const jwt = await signJWT(claim, privateKey);
-
+ 
   const resp = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -152,29 +152,29 @@ async function getAccessToken(serviceEmail, privateKey) {
       assertion:  jwt
     })
   });
-
+ 
   if (!resp.ok) {
     const err = await resp.text();
     throw new Error(`OAuth token error: ${resp.status} - ${err}`);
   }
-
+ 
   const json = await resp.json();
   return json.access_token;
 }
-
+ 
 async function signJWT(payload, pemKey) {
   const header       = { alg: 'RS256', typ: 'JWT' };
   const b64u         = s => Buffer.from(s).toString('base64url');
   const headerB64    = b64u(JSON.stringify(header));
   const payloadB64   = b64u(JSON.stringify(payload));
   const signingInput = `${headerB64}.${payloadB64}`;
-
+ 
   const pemBody = pemKey
     .replace(/-----BEGIN PRIVATE KEY-----/g, '')
     .replace(/-----END PRIVATE KEY-----/g, '')
     .replace(/\s+/g, '');
   const keyDer = Buffer.from(pemBody, 'base64');
-
+ 
   const cryptoKey = await crypto.subtle.importKey(
     'pkcs8',
     keyDer,
@@ -182,28 +182,28 @@ async function signJWT(payload, pemKey) {
     false,
     ['sign']
   );
-
+ 
   const signature = await crypto.subtle.sign(
     'RSASSA-PKCS1-v1_5',
     cryptoKey,
     Buffer.from(signingInput)
   );
-
+ 
   const sigB64 = Buffer.from(signature).toString('base64url');
   return `${signingInput}.${sigB64}`;
 }
-
+ 
 function buildPrompt(cvText, role) {
   return `Tu esi profesionalus karjeros konsultantas ir CV analizuotojas.
 Isanalizuok si CV ir pateik strukturuota ivertinima.
-
+ 
 ZMOGAUS DOMINANCIOS SRITYS: ${role}
-
+ 
 CV TURINYS:
 ${cvText}
-
+ 
 Graizink TIKTAI JSON objekta (be jokio papildomo teksto, be markdown backtick'u) tokia struktura:
-
+ 
 {
   "overallScore": <skaicius 0-100>,
   "scoreLabel": "<Silpnas | Vidutinis | Geras | Puikus>",
@@ -229,11 +229,11 @@ Graizink TIKTAI JSON objekta (be jokio papildomo teksto, be markdown backtick'u)
     }
   ]
 }
-
+ 
 SVARBU del vcsRecommendations:
 - Jei shouldChangeCareer = false: rekomenduok konkrecius irankius/kursus ESAMAI profesijai gilinti (skill_upgrade).
 - Jei shouldChangeCareer = true: rekomenduok karjeros keitimo kursus (career_change).
-
+ 
 Naudok tik sias VCS kursu nuorodas pagal tematika:
 - AI irankiai (bendrai): https://www.vilniuscoding.lt/mokymai/68-val-svarbiausi-di-irankiai-nuo-turinio-generavimo-iki-automatizavimo/
 - Web programavimas su AI: https://www.vilniuscoding.lt/mokymai/120-val-web-programavimas-su-ai-next-js-cursor/
@@ -256,6 +256,6 @@ Naudok tik sias VCS kursu nuorodas pagal tematika:
 - AI Inzinerija: https://www.vilniuscoding.lt/mokymai/260-val-ai-inzinerija-python-programavimas-llm-integracija-ir-ismaniu-agentu-kurimas/
 - Rankinis Testavimas: https://www.vilniuscoding.lt/mokymai/96-val-rankinis-testavimas-testavimo-pagrindai-jira-postman-ir-dirbtinis-intelektas/
 - Automatinis Testavimas: https://www.vilniuscoding.lt/mokymai/96-val-rankinis-testavimas-testavimo-pagrindai-jira-postman-ir-dirbtinis-intelektas/
-
+ 
 Rekomenduok 2-3 kursus. Visos reiksmes turi buti lietuviu kalba.`;
 }
