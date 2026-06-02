@@ -1234,14 +1234,14 @@ body {
       <div class="skill-tags" id="skillTags"></div>
     </div>
 
-    <div id="selfGrowthSection" style="display:none">
-      <div class="growth-section-label">🚀 Kaip augti toliau — savarankiškai</div>
-      <div id="selfGrowthList"></div>
-    </div>
-
     <div id="vcsRecsSection" style="display:none">
       <div class="vcs-section-label">VCS mokymų kelias pagal tavo profilį</div>
       <div id="vcsRecsList"></div>
+    </div>
+
+    <div id="selfGrowthSection" style="display:none">
+      <div class="growth-section-label">🚀 Kaip augti toliau — savarankiškai</div>
+      <div id="selfGrowthList"></div>
     </div>
 
     <div class="cta-panel">
@@ -1543,13 +1543,9 @@ function showResults(a) {
   var growthSection = document.getElementById('selfGrowthSection');
   if (tips.length > 0) {
     document.getElementById('selfGrowthList').innerHTML = tips.map(function(t) {
-      var resourceHtml = t.resource
-        ? '<a class="growth-resource" href="' + t.resource + '" target="_blank">→ ' + t.resource.replace(/https?:\/\/(www\.)?/, '').split('/')[0] + '</a>'
-        : '';
       return '<div class="growth-card">' +
         '<div class="growth-title">' + t.title + '</div>' +
         '<div class="growth-desc">' + t.description + '</div>' +
-        resourceHtml +
         '</div>';
     }).join('');
     growthSection.style.display = 'block';
