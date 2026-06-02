@@ -182,10 +182,23 @@ function buildPrompt(cvText, role) {
 
 SVARBIAUSIOS TAISYKLĖS:
 1. Jei CV tekstas tuščias, per trumpas (<50 žodžių) arba neinformatyvus - overallScore TURI būti 0-25. Negalima išgalvoti informacijos.
-2. Jei žmogus jau yra patyręs specialistas dominančioje srityje (3+ metai patirties, stiprus CV) - NESIŪLYK mūsų kursų. Vietoj to pateik selfGrowthTips - konkrečius next steps kaip augti be mokymų.
-3. VCS kursus rekomenduok TIK kai matai realų potencialą tapti klientu: žmogus nori keisti karjerą, trūksta bazinių įgūdžių, arba nori gilintis bet dar pradedantysis.
-4. Jokių išgalvotų faktų. Jei informacijos nėra - rašyk apie trūkumą, ne apie privalumus.
-5. overallScore turi ATSPINDĖTI realybę: tuščias/silpnas CV = 0-30, vidutinis = 31-60, geras = 61-80, puikus = 81-100.
+2. Jokių išgalvotų faktų. Jei informacijos nėra - rašyk apie trūkumą, ne apie privalumus.
+3. overallScore: tuščias/silpnas CV = 0-30, vidutinis = 31-60, geras = 61-80, puikus = 81-100.
+
+PROFILIŲ LOGIKA:
+
+SILPNAS profilis (0-40 balų, mažai patirties, nori keisti karjerą):
+→ vcsRecommendations: 2-3 kursai (pagrindinė rekomendacija)
+→ selfGrowthTips: [] (tuščias)
+
+STIPRUS profilis (61+ balų, patyręs specialistas dominančioje srityje):
+→ vcsRecommendations: 1-2 kursai TIK jei yra konkrečių įgūdžių spragų kurių dar neturi
+→ selfGrowthTips: 3-4 tekstinės gairės kaip augti savarankiškai (be URL nuorodų - tik tekstas)
+
+TUŠČIAS/NEINFORMATYVUS CV:
+→ vcsRecommendations: [] (tuščias)
+→ selfGrowthTips: [] (tuščias)
+→ tik sąžiningas summary
 
 DOMINANČIOS SRITYS: ${role}
 
@@ -195,14 +208,14 @@ ${cvText}
 Grąžink TIKTAI JSON objektą (be markdown, be backtickų):
 
 {
-  "overallScore": <0-100, GRIEŽTAI pagal CV kokybę>,
+  "overallScore": <0-100>,
   "scoreLabel": "<Silpnas | Vidutinis | Geras | Puikus>",
-  "currentField": "<dabartinė profesija arba Nenurodyta jei nėra info>",
+  "currentField": "<dabartinė profesija arba Nenurodyta>",
   "experienceLevel": "<Pradedantysis | Vidutinis | Patyręs | Ekspertas>",
-  "shouldChangeCareer": <true jei reikia keisti, false jei geriau gilintis>,
-  "isStrongCandidate": <true jei jau patyręs specialistas dominančioje srityje>,
-  "summary": "<2-3 sakiniai SĄŽININGAS įvertinimas. Jei CV tuščias - pasakyk tai tiesiogiai>",
-  "strengths": ["<tik realios stiprybės iš CV, ne išgalvotos>"],
+  "shouldChangeCareer": <true arba false>,
+  "isStrongCandidate": <true jei 61+ balų ir patyręs dominančioje srityje>,
+  "summary": "<2-3 sakiniai sąžiningas įvertinimas>",
+  "strengths": ["<tik realios stiprybės iš CV>"],
   "weaknesses": ["<konkrečios silpnybės>"],
   "improvements": [
     {"title": "<pavadinimas>", "description": "<konkretus patarimas>"}
@@ -210,29 +223,23 @@ Grąžink TIKTAI JSON objektą (be markdown, be backtickų):
   "missingSkills": ["<trūkstami įgūdžiai pagal dominančią sritį>"],
   "aiReadinessScore": <0-100>,
   "aiReadinessComment": "<realus komentaras apie skaitmeninę brandą>",
-  "selfGrowthTips": [
-    {
-      "title": "<žingsnis>",
-      "description": "<kaip augti savarankiškai - resursai, sertifikatai, praktika>",
-      "resource": "<konkretus URL, kursas, knyga ar platforma>"
-    }
-  ],
   "vcsRecommendations": [
     {
       "type": "<career_change | skill_upgrade>",
       "title": "<kurso pavadinimas>",
-      "reason": "<kodėl tinka BŪTENT šiam žmogui - konkrečiai>",
+      "reason": "<kodėl tinka BŪTENT šiam žmogui>",
       "courseUrl": "<URL>"
+    }
+  ],
+  "selfGrowthTips": [
+    {
+      "title": "<žingsnis>",
+      "description": "<tekstinė gairė kaip augti - konkretūs žingsniai, sertifikatai, praktika. BEZ URL nuorodų>"
     }
   ]
 }
 
-LOGIKA:
-- Jei isStrongCandidate = true: selfGrowthTips su 2-4 žingsniais, vcsRecommendations = []
-- Jei isStrongCandidate = false ir yra potencialas: vcsRecommendations su 2-3 kursais, selfGrowthTips = []
-- Jei CV tuščias/neinformatyvus: abu = [], tik summary paaiškink
-
-VCS kursų nuorodos:
+VCS kursų nuorodos (naudok tik šias):
 - AI įrankiai: https://www.vilniuscoding.lt/mokymai/68-val-svarbiausi-di-irankiai-nuo-turinio-generavimo-iki-automatizavimo/
 - Web programavimas su AI: https://www.vilniuscoding.lt/mokymai/120-val-web-programavimas-su-ai-next-js-cursor/
 - AI inžinerija / Python / LLM: https://www.vilniuscoding.lt/mokymai/260-val-ai-inzinerija-python-programavimas-llm-integracija-ir-ismaniu-agentu-kurimas/
