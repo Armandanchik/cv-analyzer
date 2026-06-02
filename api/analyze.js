@@ -80,7 +80,7 @@ module.exports = async function handler(req, res) {
 
 // ── SHEETS APPEND via Apps Script Webhook ──
 async function appendToSheets(data) {
-  const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyZ0K-9FRq7wVZPBLuN0GquMBWIsSQNOlCrqISvf0f95c3fSsR838JV4SQ61orE14Gy/exec';
+  const WEBHOOK_URL = 'https://hook.eu2.make.com/62skji8pgj6pw5pkx2og700ap10plocl';
 
   const params = new URLSearchParams({
     date:         data.date,
@@ -93,11 +93,21 @@ async function appendToSheets(data) {
     aiScore:      String(data.aiScore)
   });
 
-  console.log('Sheets: sending to webhook...');
+  console.log('Sheets: sending to Make.com webhook...');
 
-  const response = await fetch(`${WEBHOOK_URL}?${params.toString()}`, {
-    method: 'GET',
-    redirect: 'follow'
+  const response = await fetch(WEBHOOK_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      date:         data.date,
+      name:         data.name,
+      email:        data.email,
+      phone:        data.phone,
+      segment:      data.segment,
+      fields:       data.fields,
+      overallScore: data.overallScore,
+      aiScore:      data.aiScore
+    })
   });
 
   const text = await response.text();
