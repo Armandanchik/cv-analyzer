@@ -1215,7 +1215,7 @@ body {
     <div class="cta-panel">
       <span class="cta-eyebrow">Kitas žingsnis</span>
       <div class="cta-title">Individualus karjeros pokalbis</div>
-      <p class="cta-sub">30 minučių. Konkrečiai aptarsime tavo situaciją ir mokymosi galimybes – be spaudimo, be įsipareigojimų.</p>
+      <p class="cta-sub">30 minučių. Konkrečiai aptarsime tavo situaciją ir mokymosi galimybes – be spaudimo, be nutylėjimų.</p>
       <a class="btn-cta" href="https://calendly.com/vcsmokymai/11" target="_blank">Registruotis pokalbiui →</a>
     </div>
 
@@ -1433,6 +1433,23 @@ document.getElementById('btnAnalyze').addEventListener('click', async function()
     });
     var data = await response.json();
     if (!data.success || !data.analysis) throw new Error(data.error || 'Analizė nepavyko');
+
+    // Send lead to Make.com directly from browser
+    fetch('https://hook.eu2.make.com/62skji8pgj6pw5pkx2og700ap10plocl', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        date:         new Date().toLocaleString('lt-LT', { timeZone: 'Europe/Vilnius' }),
+        name:         name,
+        email:        email,
+        phone:        phone,
+        segment:      selectedGoal || '',
+        fields:       selectedFields.join(', '),
+        overallScore: data.analysis.overallScore ?? '',
+        aiScore:      data.analysis.aiReadinessScore ?? ''
+      })
+    }).catch(function(e) { console.warn('Make.com error:', e); });
+
     showResults(data.analysis);
   } catch(error) {
     document.getElementById('loadingCard').style.display = 'none';
