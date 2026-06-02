@@ -28,7 +28,7 @@ module.exports = async function handler(req, res) {
     const prompt = buildPrompt(cvText, role);
 
     const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${GEMINI_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${GEMINI_KEY}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -82,28 +82,26 @@ module.exports = async function handler(req, res) {
 async function appendToSheets(data) {
   const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyZ0K-9FRq7wVZPBLuN0GquMBWIsSQNOlCrqISvf0f95c3fSsR838JV4SQ61orE14Gy/exec';
 
-  const payload = {
+  const params = new URLSearchParams({
     date:         data.date,
     name:         data.name,
     email:        data.email,
     phone:        data.phone,
     segment:      data.segment,
     fields:       data.fields,
-    overallScore: data.overallScore,
-    aiScore:      data.aiScore
-  };
+    overallScore: String(data.overallScore),
+    aiScore:      String(data.aiScore)
+  });
 
   console.log('Sheets: sending to webhook...');
 
-  const response = await fetch(WEBHOOK_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
+  const response = await fetch(`${WEBHOOK_URL}?${params.toString()}`, {
+    method: 'GET',
     redirect: 'follow'
   });
 
   const text = await response.text();
-  console.log('Sheets: webhook response:', response.status, text);
+  console.log('Sheets: webhook response:', response.status, text.slice(0, 200));
 }
 
 function buildPrompt(cvText, role) {
