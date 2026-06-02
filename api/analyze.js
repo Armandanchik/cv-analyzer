@@ -78,127 +78,32 @@ module.exports = async function handler(req, res) {
   }
 };
 
-// ── SHEETS APPEND ──
+// ── SHEETS APPEND via Apps Script Webhook ──
 async function appendToSheets(data) {
-  const SPREADSHEET_ID = '13sSTO7sniHphcIVDhik2rxNU3rR7EsSGcG133d7iqD8';
-  const SHEET_NAME     = 'CV_Leads_Analyzer';
+  const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyZ0K-9FRq7wVZPBLuN0GquMBWIsSQNOlCrqISvf0f95c3fSsR838JV4SQ61orE14Gy/exec';
 
-  const serviceEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-  const privateKey   = process.env.GOOGLE_PRIVATE_KEY
-    ?.replace(/\\n/g, '\n')
-    ?.replace(/^["']|["']$/g, '')
-    ?.trim();
-
-  if (!serviceEmail || !privateKey) {
-    console.warn('Sheets: credentials missing');
-    return;
-  }
-
-  console.log('Sheets: getting token for', serviceEmail);
-  const token = await getAccessToken(serviceEmail, privateKey);
-  console.log('Sheets: token OK, building row...');
-
-  const row = [
-    data.date,
-    data.name,
-    data.email,
-    data.phone,
-    data.segment,
-    data.fields,
-    data.overallScore,
-    data.aiScore
-  ];
-
-  console.log('Sheets: row data:', JSON.stringify(row));
-
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(SHEET_NAME)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
-  console.log('Sheets: URL:', url);
-
-  let response;
-  try {
-    response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ values: [row] })
-    });
-  } catch (fetchErr) {
-    console.error('Sheets: fetch threw error:', fetchErr.message);
-    throw fetchErr;
-  }
-
-  const responseText = await response.text();
-  console.log('Sheets: status', response.status, responseText.slice(0, 500));
-
-  if (!response.ok) {
-    throw new Error(`Sheets append failed: ${response.status} - ${responseText}`);
-  }
-
-  console.log('Sheets: row saved successfully');
-}
-
-// ── JWT / ACCESS TOKEN ──
-async function getAccessToken(serviceEmail, privateKey) {
-  const now   = Math.floor(Date.now() / 1000);
-  const claim = {
-    iss:   serviceEmail,
-    scope: 'https://www.googleapis.com/auth/spreadsheets',
-    aud:   'https://oauth2.googleapis.com/token',
-    iat:   now,
-    exp:   now + 3600
+  const payload = {
+    date:         data.date,
+    name:         data.name,
+    email:        data.email,
+    phone:        data.phone,
+    segment:      data.segment,
+    fields:       data.fields,
+    overallScore: data.overallScore,
+    aiScore:      data.aiScore
   };
 
-  const jwt = await signJWT(claim, privateKey);
+  console.log('Sheets: sending to webhook...');
 
-  const resp = await fetch('https://oauth2.googleapis.com/token', {
+  const response = await fetch(WEBHOOK_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-      assertion:  jwt
-    })
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+    redirect: 'follow'
   });
 
-  if (!resp.ok) {
-    const err = await resp.text();
-    throw new Error(`OAuth token error: ${resp.status} - ${err}`);
-  }
-
-  const json = await resp.json();
-  return json.access_token;
-}
-
-async function signJWT(payload, pemKey) {
-  const header       = { alg: 'RS256', typ: 'JWT' };
-  const b64u         = s => Buffer.from(s).toString('base64url');
-  const headerB64    = b64u(JSON.stringify(header));
-  const payloadB64   = b64u(JSON.stringify(payload));
-  const signingInput = `${headerB64}.${payloadB64}`;
-
-  const pemBody = pemKey
-    .replace(/-----BEGIN PRIVATE KEY-----/g, '')
-    .replace(/-----END PRIVATE KEY-----/g, '')
-    .replace(/\s+/g, '');
-  const keyDer = Buffer.from(pemBody, 'base64');
-
-  const cryptoKey = await crypto.subtle.importKey(
-    'pkcs8',
-    keyDer,
-    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
-    false,
-    ['sign']
-  );
-
-  const signature = await crypto.subtle.sign(
-    'RSASSA-PKCS1-v1_5',
-    cryptoKey,
-    Buffer.from(signingInput)
-  );
-
-  const sigB64 = Buffer.from(signature).toString('base64url');
-  return `${signingInput}.${sigB64}`;
+  const text = await response.text();
+  console.log('Sheets: webhook response:', response.status, text);
 }
 
 function buildPrompt(cvText, role) {
