@@ -799,6 +799,33 @@ body {
   color: #b91c1c;
 }
 
+/* ── SELF GROWTH TIPS ── */
+#selfGrowthSection { margin-bottom: 14px; }
+.growth-section-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: #1a7a3e;
+  margin-bottom: 14px;
+}
+.growth-card {
+  background: var(--surface);
+  border: 1px solid #c3e6d0;
+  border-left: 3px solid #1a7a3e;
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 10px;
+}
+.growth-title { font-size: 15px; font-weight: 600; color: var(--text-1); margin-bottom: 5px; }
+.growth-desc { font-size: 13px; color: var(--text-2); line-height: 1.55; margin-bottom: 10px; }
+.growth-resource {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 600;
+  color: #1a7a3e; text-decoration: none;
+  background: #f0faf4; border: 1px solid #c3e6d0;
+  padding: 5px 12px; border-radius: 8px;
+  transition: all 0.18s;
+}
+.growth-resource:hover { background: #1a7a3e; color: white; }
+
 /* ── VCS RECOMMENDATIONS ── */
 #vcsRecsSection { margin-bottom: 14px; }
 .vcs-section-label {
@@ -950,7 +977,7 @@ body {
   <div class="hero-glow"></div>
   <div class="hero-inner">
     <h1>Sužinok, ar tavo CV<br><span class="accent">konkurencingas</span><br>šiandien</h1>
-    <p class="hero-desc">Įkelk CV, pasirink sritį. AI išanalizuos turinį pagal realius rinkos standartus ir gausi realius patarimus, ką daryti, kad pasiektum norimą rezultatą.</p>
+    <p class="hero-desc">Įkelk CV, pasirink sritį. AI išanalizuos turinį pagal realius rinkos standartus ir gausite realius patarimus, ką daryti siekiant tikslo.</p>
     <div class="hero-stats">
       <div class="hero-stat">
         <div class="hero-stat-num">30 sek.</div>
@@ -1205,6 +1232,11 @@ body {
     <div class="skills-missing">
       <div class="skills-missing-label">Įgūdžiai, kuriuos verta ugdyti</div>
       <div class="skill-tags" id="skillTags"></div>
+    </div>
+
+    <div id="selfGrowthSection" style="display:none">
+      <div class="growth-section-label">🚀 Kaip augti toliau — savarankiškai</div>
+      <div id="selfGrowthList"></div>
     </div>
 
     <div id="vcsRecsSection" style="display:none">
@@ -1505,6 +1537,24 @@ function showResults(a) {
     recsSection.style.display = 'block';
   } else {
     recsSection.style.display = 'none';
+  }
+
+  var tips = a.selfGrowthTips || [];
+  var growthSection = document.getElementById('selfGrowthSection');
+  if (tips.length > 0) {
+    document.getElementById('selfGrowthList').innerHTML = tips.map(function(t) {
+      var resourceHtml = t.resource
+        ? '<a class="growth-resource" href="' + t.resource + '" target="_blank">→ ' + t.resource.replace(/https?:\/\/(www\.)?/, '').split('/')[0] + '</a>'
+        : '';
+      return '<div class="growth-card">' +
+        '<div class="growth-title">' + t.title + '</div>' +
+        '<div class="growth-desc">' + t.description + '</div>' +
+        resourceHtml +
+        '</div>';
+    }).join('');
+    growthSection.style.display = 'block';
+  } else {
+    growthSection.style.display = 'none';
   }
 }
 
