@@ -137,7 +137,12 @@ body {
   position: relative; z-index: 2;
   max-width: 1100px; margin: 0 auto;
   padding: 0 16px;
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 48px;
+  align-items: center;
 }
+.hero-left { min-width: 0; }
 .hero-eyebrow {
   display: inline-flex; align-items: center; gap: 8px;
   font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
@@ -148,7 +153,7 @@ body {
 .hero-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--vcs-green); flex-shrink: 0; }
 .hero h1 {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(2.8rem, 6vw, 5rem);
+  font-size: clamp(2.4rem, 4.5vw, 4rem);
   font-weight: 700;
   color: #ffffff;
   line-height: 1.02;
@@ -170,26 +175,90 @@ body {
   border-radius: 2px;
 }
 .hero-desc {
-  font-size: 18px;
+  font-size: 17px;
   color: rgba(255,255,255,0.58);
   line-height: 1.65;
-  max-width: 520px;
+  max-width: 480px;
   margin-bottom: 36px;
   text-align: left;
 }
 .hero-stats {
-  display: flex; gap: 40px; flex-wrap: wrap;
+  display: flex; gap: 32px; flex-wrap: wrap;
 }
 .hero-stat {
   display: flex; flex-direction: column; gap: 2px;
 }
 .hero-stat-num {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(14px, 2vw, 22px); font-weight: 800;
+  font-size: clamp(14px, 2vw, 20px); font-weight: 800;
   color: #fff;
   letter-spacing: -0.02em;
 }
 .hero-stat-label { font-size: 12px; color: rgba(255,255,255,0.45); }
+
+/* ── HERO RIGHT PANEL ── */
+.hero-right {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.hero-feature-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  backdrop-filter: blur(8px);
+  transition: background 0.2s, border-color 0.2s;
+}
+.hero-feature-card:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.18);
+}
+.hero-feature-icon {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.hero-feature-icon.green { background: rgba(74,222,128,0.12); }
+.hero-feature-icon.blue  { background: rgba(61,63,232,0.2); }
+.hero-feature-icon.amber { background: rgba(255,255,255,0.08); }
+.hero-feature-icon svg {
+  width: 18px; height: 18px;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+.hero-feature-body {}
+.hero-feature-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px; font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+}
+.hero-feature-desc {
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.5;
+}
+
+@media(max-width: 900px) {
+  .hero-inner {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .hero-right { flex-direction: row; flex-wrap: wrap; }
+  .hero-feature-card { flex: 1 1 220px; }
+}
+@media(max-width: 600px) {
+  .hero-right { flex-direction: column; }
+  .hero-feature-card { flex: none; }
+}
 
 /* ── PROGRESS STEPS ── */
 .steps-wrap {
@@ -199,8 +268,8 @@ body {
   position: sticky; top: 0; z-index: 190;
 }
 .steps-inner {
-  max-width: 720px; margin: 0 auto;
-  padding: 0 40px;
+  max-width: 1100px; margin: 0 auto;
+  padding: 0 56px;
   display: flex; align-items: stretch;
 }
 .step-tab {
@@ -257,7 +326,8 @@ body {
 }
 
 /* ── MAIN LAYOUT ── */
-.main { max-width: 720px; margin: 0 auto; padding: 48px 40px 100px; }
+.main { max-width: 1100px; margin: 0 auto; padding: 48px 56px 100px; }
+.main > * { max-width: 720px; }
 
 /* ── SECTION HEADER ── */
 .section-label {
@@ -936,7 +1006,9 @@ body {
   .hero { padding: 60px 20px 56px; }
   .hero-stats { gap: 24px; }
   .steps-wrap { padding: 0 20px; }
+  .steps-inner { padding: 0 20px; }
   .main { padding: 32px 20px 80px; }
+  .main > * { max-width: 100%; }
   .goal-options { grid-template-columns: 1fr; }
   .score-panel { padding: 36px 24px; }
   .cta-panel { padding: 32px 24px; }
@@ -976,22 +1048,58 @@ body {
   <div class="hero-grid"></div>
   <div class="hero-glow"></div>
   <div class="hero-inner">
-    <h1>Sužinok, ar tavo CV<br><span class="accent">konkurencingas</span><br>šiandien</h1>
-    <p class="hero-desc">Įkelk CV, pasirink sritį. AI išanalizuos turinį pagal realius rinkos standartus ir gausite realius patarimus, ką daryti siekiant tikslo.</p>
-    <div class="hero-stats">
-      <div class="hero-stat">
-        <div class="hero-stat-num">30 sek.</div>
-        <div class="hero-stat-label">Analizės laikas</div>
-      </div>
-      <div class="hero-stat">
-        <div class="hero-stat-num">100%</div>
-        <div class="hero-stat-label">Nemokamai</div>
-      </div>
-      <div class="hero-stat">
-        <div class="hero-stat-num">Pagal sritį</div>
-        <div class="hero-stat-label">Personalizuota</div>
+
+    <!-- LEFT: existing content -->
+    <div class="hero-left">
+      <h1>Sužinok, ar tavo CV<br>atitinka <span class="accent">šiandienos</span><br>rinkos lūkesčius</h1>
+      <p class="hero-desc">Įkelk CV, pasirink sritį. AI išanalizuos turinį pagal realius rinkos standartus ir gausite realius patarimus, ką daryti siekiant tikslo.</p>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-num">30 sek.</div>
+          <div class="hero-stat-label">Analizės laikas</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">100%</div>
+          <div class="hero-stat-label">Nemokamai</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">Pagal sritį</div>
+          <div class="hero-stat-label">Personalizuota</div>
+        </div>
       </div>
     </div>
+
+    <!-- RIGHT: design feature blocks -->
+    <div class="hero-right">
+      <div class="hero-feature-card">
+        <div class="hero-feature-icon green">
+          <svg viewBox="0 0 24 24" stroke="#4ADE80"><circle cx="12" cy="12" r="9"/><polyline points="9 12 11 14 15 10"/></svg>
+        </div>
+        <div class="hero-feature-body">
+          <div class="hero-feature-title">Tikslus įvertinimas</div>
+          <div class="hero-feature-desc">AI vertina pagal realius rinkos standartus — ne šablonus, o faktinį turinį.</div>
+        </div>
+      </div>
+      <div class="hero-feature-card">
+        <div class="hero-feature-icon blue">
+          <svg viewBox="0 0 24 24" stroke="#818cf8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+        </div>
+        <div class="hero-feature-body">
+          <div class="hero-feature-title">Skaitmeninių įgūdžių rodiklis</div>
+          <div class="hero-feature-desc">Sužinok, kiek tavo CV atitinka AI eros darbo rinkos lūkesčius.</div>
+        </div>
+      </div>
+      <div class="hero-feature-card">
+        <div class="hero-feature-icon amber">
+          <svg viewBox="0 0 24 24" stroke="rgba(255,255,255,0.7)"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </div>
+        <div class="hero-feature-body">
+          <div class="hero-feature-title">Konkretūs patarimai</div>
+          <div class="hero-feature-desc">Gauk veiksmų planą — ką pakeisti, ką pridėti, kur stiprinti.</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
