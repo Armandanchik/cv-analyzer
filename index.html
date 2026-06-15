@@ -1570,6 +1570,38 @@ body {
 </main>
 
 <script>
+// ── FUNNEL TRACKING ──
+// Lengvas, "fire-and-forget" tracking, kuris padeda matyti, kuriame žingsnyje
+// žmonės iškrenta. Klaidos čia NIEKADA neturi paveikti pagrindinio flow.
+var sessionId = (window.crypto && crypto.randomUUID)
+  ? crypto.randomUUID()
+  : (Date.now() + '-' + Math.random().toString(36).slice(2));
+
+function track(event, meta) {
+  try {
+    fetch('/api/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event: event, sessionId: sessionId, meta: meta || {} })
+    }).catch(function() {});
+  } catch (e) {}
+}
+
+track('landed', {});
+
+// Žingsnių keitimas (1↔2, žingsnis→rezultatai, restart) anksčiau šokdavo
+// į window.scrollTo({top:0}) - tai grąžino vartotoją prie hero bloko ir
+// reikėjo vėl scrollinti žemyn. Vietoj to scrolinam tik tiek, kad .main
+// turinys atsidurtų sticky topbar'o apačioje - hero praleidžiamas.
+function scrollToContentTop() {
+  var main = document.querySelector('.main');
+  var topbar = document.querySelector('.topbar');
+  if (!main) return;
+  var offset = topbar ? topbar.offsetHeight : 0;
+  var y = main.getBoundingClientRect().top + window.scrollY - offset;
+  window.scrollTo({ top: Math.max(y, 0), behavior: 'smooth' });
+}
+
 var selectedFields = [];
 var selectedGoal = '';
 
@@ -1648,6 +1680,7 @@ var questionnaire = {
 
 function selectHasCv(value) {
   hasCv = value;
+  track('step2_choice_made', { hasCv: value });
   document.getElementById('choiceYes').classList.toggle('selected', value === 'yes');
   document.getElementById('choiceNo').classList.toggle('selected', value === 'no');
   document.getElementById('cvUploadBlock').style.display = value === 'yes' ? 'block' : 'none';
@@ -1836,6 +1869,7 @@ document.getElementById('btnToStep2').addEventListener('click', function() {
     document.getElementById('step1Error').style.display = 'block';
     return;
   }
+  track('step1_completed', { fields: selectedFields, careerGoal: selectedGoal });
   document.getElementById('step1Section').style.display = 'none';
 
   var s2 = document.getElementById('step2Section');
@@ -1855,7 +1889,7 @@ document.getElementById('btnToStep2').addEventListener('click', function() {
   document.getElementById('stepTab1').classList.remove('active'); document.getElementById('stepTab1').classList.add('done');
   document.getElementById('sc1').textContent = '✓';
   document.getElementById('stepTab2').classList.add('active');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  scrollToContentTop();
 });
 
 document.getElementById('btnBack').addEventListener('click', function() {
@@ -1870,7 +1904,7 @@ document.getElementById('btnBack').addEventListener('click', function() {
   document.getElementById('stepTab1').classList.add('active'); document.getElementById('stepTab1').classList.remove('done');
   document.getElementById('sc1').textContent = '1';
   document.getElementById('stepTab2').classList.remove('active');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  scrollToContentTop();
 });
 
 // ── PDF.JS ──
@@ -1958,6 +1992,8 @@ document.getElementById('btnAnalyze').addEventListener('click', async function()
   document.getElementById('phoneError').style.display = 'none';
   hideError();
 
+  track('submit_clicked', { inputSource: hasCv });
+
   document.getElementById('step2Section').style.display = 'none';
   document.getElementById('loadingCard').style.display = 'block';
 
@@ -1967,7 +2003,7 @@ document.getElementById('btnAnalyze').addEventListener('click', async function()
   document.getElementById('stepTab3').classList.add('active');
 
   startLoadingSteps();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  scrollToContentTop();
 
   try {
     var requestBody = {
@@ -2015,7 +2051,7 @@ function showResults(a) {
   var ra = document.getElementById('resultsArea');
   ra.style.display = 'block';
   ra.style.animation = 'none'; ra.offsetWidth; ra.style.animation = '';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  scrollToContentTop();
 
   var score = a.overallScore || 0;
   setTimeout(function() {
@@ -2149,7 +2185,7 @@ document.getElementById('btnRestart').addEventListener('click', function() {
   document.getElementById('sc2').textContent = '2';
   document.getElementById('stepTab3').className = 'step-tab';
   document.getElementById('sc3').textContent = '3';
-  window.scrollTo({top:0,behavior:'smooth'});
+  scrollToContentTop();
 });
 </script>
 </body>
