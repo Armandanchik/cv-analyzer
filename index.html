@@ -1285,7 +1285,7 @@ body {
     </div>
 
     <div class="section-label">2 žingsnis</div>
-    <div class="section-title">Ar turi CV savo įrenginyje?</div>
+    <div class="section-title">Ar turi CV su savimi?</div>
     <p class="section-sub">Pasirink variantą – abu keliai veda į tą pačią analizę.</p>
 
     <div class="cv-choice-row" id="cvChoiceRow">
@@ -1337,7 +1337,7 @@ body {
         <div class="qa-title">Kiek metų patirties turi šioje srityje?</div>
         <button class="qa-card" data-field="experienceRange" data-value="0-1 metai">
           <div class="qa-card-title">0–1 metai</div>
-          <div class="qa-card-desc">Ką tik pradėjau arba studijuoju</div>
+          <div class="qa-card-desc">Ką tik pradedu arba studijuoju</div>
         </button>
         <button class="qa-card" data-field="experienceRange" data-value="1-3 metai">
           <div class="qa-card-title">1–3 metai</div>
@@ -1431,7 +1431,7 @@ body {
           <div class="qa-card-title">Trūksta techninių įgūdžių</div>
         </button>
         <button class="qa-card" data-field="growthBlocker" data-value="Nežinau, į kurią pusę krypti">
-          <div class="qa-card-title">Nežinau, kurią kryptį pasirinkti</div>
+          <div class="qa-card-title">Nežinau, į kurią pusę krypti</div>
         </button>
         <button class="qa-card" data-field="growthBlocker" data-value="Trūksta pasitikėjimo ar patirties">
           <div class="qa-card-title">Trūksta pasitikėjimo ar patirties</div>
@@ -1463,6 +1463,11 @@ body {
         <label class="field-label" for="leadPhone">Telefono numeris *</label>
         <input class="field-input" type="tel" id="leadPhone" placeholder="+370 600 00000" autocomplete="tel">
         <div id="phoneError" style="display:none;color:#b91c1c;font-size:12px;font-weight:500;margin-top:4px;">Prašome įvesti telefono numerį</div>
+      </div>
+
+      <div class="form-group" id="qaExtraInfoGroup" style="display:none">
+        <label class="field-label" for="qaExtraInfo">Papildoma informacija <span>(neprivaloma)</span></label>
+        <textarea class="field-textarea" id="qaExtraInfo" style="min-height:110px" placeholder="Papasakok plačiau apie save - konkretūs projektai, rezultatai (pvz. padidinau pardavimus 20%, sutvarkiau X procesą), sertifikatai, kalbos, portfolio nuoroda..."></textarea>
       </div>
 
       <p class="privacy-line">🔒 Pateikdami duomenis patvirtinate, kad susipažinote su
@@ -1648,6 +1653,7 @@ function selectHasCv(value) {
   document.getElementById('cvUploadBlock').style.display = value === 'yes' ? 'block' : 'none';
   document.getElementById('noCvBlock').style.display = value === 'no' ? 'block' : 'none';
   document.getElementById('contactFieldsBlock').style.display = value === 'yes' ? 'block' : 'none';
+  document.getElementById('qaExtraInfoGroup').style.display = value === 'no' ? 'block' : 'none';
   if (value === 'no') { qaRender(); }
 }
 document.getElementById('choiceYes').addEventListener('click', function() { selectHasCv('yes'); });
@@ -1975,7 +1981,8 @@ document.getElementById('btnAnalyze').addEventListener('click', async function()
       requestBody.cvText = cvText;
     } else {
       requestBody.questionnaire = Object.assign({}, questionnaire, {
-        aiTools: questionnaire.aiTools.concat(questionnaire.aiToolsCustom)
+        aiTools: questionnaire.aiTools.concat(questionnaire.aiToolsCustom),
+        additionalInfo: document.getElementById('qaExtraInfo').value.trim()
       });
     }
 
@@ -2112,6 +2119,8 @@ document.getElementById('btnRestart').addEventListener('click', function() {
   document.getElementById('cvUploadBlock').style.display = 'none';
   document.getElementById('noCvBlock').style.display = 'none';
   document.getElementById('contactFieldsBlock').style.display = 'none';
+  document.getElementById('qaExtraInfoGroup').style.display = 'none';
+  document.getElementById('qaExtraInfo').value = '';
   document.getElementById('qaTitle').value = '';
   document.querySelectorAll('.qa-card.selected, .qa-chip.selected').forEach(function(el) {
     el.classList.remove('selected', 'disabled');
