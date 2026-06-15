@@ -657,6 +657,56 @@ body {
 }
 .or-divider::before, .or-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
+/* ── CV / NO-CV CHOICE ── */
+.cv-choice-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+.cv-choice {
+  border: 1.5px solid var(--border); border-radius: var(--radius);
+  padding: 18px 16px; background: var(--surface); cursor: pointer;
+  text-align: left; font-family: 'Inter', sans-serif; transition: all 0.18s;
+}
+.cv-choice:hover { border-color: var(--vcs-blue); background: var(--surface-3); }
+.cv-choice.selected { border-color: var(--vcs-blue); background: #f0f0fd; box-shadow: 0 0 0 3px rgba(61,63,232,0.1); }
+.cv-choice-title { font-size: 14px; font-weight: 600; color: var(--text-1); margin-bottom: 3px; }
+.cv-choice.selected .cv-choice-title { color: var(--vcs-blue); }
+.cv-choice-desc { font-size: 12px; color: var(--text-3); }
+@media(max-width:520px) { .cv-choice-row { grid-template-columns: 1fr; } }
+
+/* ── NO-CV QUESTIONNAIRE ── */
+.qa-progress-wrap { margin-bottom: 20px; }
+.qa-progress-label {
+  display: flex; justify-content: space-between;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+  color: var(--text-3); margin-bottom: 6px;
+}
+.qa-progress-bar { height: 4px; background: var(--surface-3); border-radius: 2px; overflow: hidden; }
+.qa-progress-fill { height: 100%; background: var(--vcs-blue); border-radius: 2px; transition: width 0.3s ease; }
+.qa-step { display: none; }
+.qa-step.active { display: block; animation: panelIn 0.3s ease both; }
+.qa-title { font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; color: var(--text-1); margin-bottom: 4px; }
+.qa-hint { font-size: 12px; color: var(--text-3); margin-bottom: 12px; }
+.qa-group-label { font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-2); margin: 14px 0 8px; }
+.qa-card {
+  border: 1.5px solid var(--border); border-radius: var(--radius);
+  padding: 14px 16px; cursor: pointer; margin-bottom: 8px;
+  background: var(--surface); transition: all 0.15s; display: block; width: 100%; text-align: left;
+  font-family: 'Inter', sans-serif;
+}
+.qa-card:hover { border-color: var(--vcs-blue); background: var(--surface-3); }
+.qa-card.selected { border-color: var(--vcs-blue); background: #f0f0fd; }
+.qa-card-title { font-size: 14px; font-weight: 600; color: var(--text-1); }
+.qa-card.selected .qa-card-title { color: var(--vcs-blue); }
+.qa-card-desc { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+.qa-chip {
+  display: inline-block; padding: 7px 14px; border: 1.5px solid var(--border);
+  border-radius: 100px; font-size: 13px; font-weight: 500; color: var(--text-2);
+  cursor: pointer; margin: 0 6px 8px 0; background: var(--surface); transition: all 0.15s;
+}
+.qa-chip:hover { border-color: var(--vcs-blue); }
+.qa-chip.selected { border-color: var(--vcs-blue); background: #ededfc; color: var(--vcs-blue); }
+.qa-chip.disabled { opacity: 0.4; cursor: default; }
+.qa-chip.disabled:hover { border-color: var(--border); }
+.qa-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; }
+
 .field-label {
   display: block;
   font-size: 12px; font-weight: 600;
@@ -1235,48 +1285,195 @@ body {
     </div>
 
     <div class="section-label">2 žingsnis</div>
-    <div class="section-title">Įkelk savo CV</div>
-    <p class="section-sub">Įkelk failą <strong>arba</strong> įkopijuok tekstą – vieno pakanka. Abu kartu suteikia tikslesnę analizę.</p>
+    <div class="section-title">Ar turi CV su savimi?</div>
+    <p class="section-sub">Pasirink variantą – abu keliai veda į tą pačią analizę.</p>
 
-    <div class="upload-zone" id="uploadZone">
-      <div class="upload-icon-wrap">📄</div>
-      <div class="upload-title">Vilkite failą čia arba spauskite</div>
-      <div class="upload-hint">PDF, Word (.docx), .txt · Maks. 5MB</div>
-      <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt">
+    <div class="cv-choice-row" id="cvChoiceRow">
+      <button class="cv-choice" id="choiceYes">
+        <div class="cv-choice-title">✓ Taip, turiu CV</div>
+        <div class="cv-choice-desc">Įkelsiu failą arba įklijuosiu tekstą</div>
+      </button>
+      <button class="cv-choice" id="choiceNo">
+        <div class="cv-choice-title">Neturiu CV su savimi</div>
+        <div class="cv-choice-desc">Atsakysiu į kelis trumpus klausimus</div>
+      </button>
     </div>
 
-    <div class="or-divider">arba įkopijuokite tekstą</div>
-
-    <div class="form-group">
-      <label class="field-label" for="cvText">CV tekstas <span>(nebūtina, jei įkėlei failą)</span></label>
-      <textarea class="field-textarea" id="cvText" placeholder="Įkopijuok CV tekstą čia arba pridėk papildomos informacijos apie save – tikslus, technologijas, patirtį..."></textarea>
-      <div class="char-count"><span id="charCount">0</span> simbolių</div>
-    </div>
-
-    <div class="form-row">
-      <div>
-        <label class="field-label" for="leadName">Vardas ir pavardė</label>
-        <input class="field-input" type="text" id="leadName" placeholder="Jonas Jonaitis">
+    <!-- CV ĮKĖLIMAS / TEKSTAS -->
+    <div id="cvUploadBlock" style="display:none">
+      <div class="upload-zone" id="uploadZone">
+        <div class="upload-icon-wrap">📄</div>
+        <div class="upload-title">Vilkite failą čia arba spauskite</div>
+        <div class="upload-hint">PDF, Word (.docx), .txt · Maks. 5MB</div>
+        <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt">
       </div>
-      <div>
-        <label class="field-label" for="leadEmail">El. paštas *</label>
-        <input class="field-input" type="email" id="leadEmail" placeholder="jonas@gmail.com">
+
+      <div class="or-divider">arba įkopijuokite tekstą</div>
+
+      <div class="form-group">
+        <label class="field-label" for="cvText">CV tekstas <span>(nebūtina, jei įkėlei failą)</span></label>
+        <textarea class="field-textarea" id="cvText" placeholder="Įkopijuok CV tekstą čia arba pridėk papildomos informacijos apie save – tikslus, technologijas, patirtį..."></textarea>
+        <div class="char-count"><span id="charCount">0</span> simbolių</div>
       </div>
     </div>
-    <div class="form-group">
-      <label class="field-label" for="leadPhone">Telefono numeris *</label>
-      <input class="field-input" type="tel" id="leadPhone" placeholder="+370 600 00000" autocomplete="tel">
-      <div id="phoneError" style="display:none;color:#b91c1c;font-size:12px;font-weight:500;margin-top:4px;">Prašome įvesti telefono numerį</div>
+
+    <!-- TRUMPAS PROFILIS (KAI NĖRA CV) -->
+    <div id="noCvBlock" style="display:none">
+      <div class="qa-progress-wrap">
+        <div class="qa-progress-label">
+          <span id="qaStepLabel">1 / 7</span>
+          <span>Trumpas profilis</span>
+        </div>
+        <div class="qa-progress-bar"><div class="qa-progress-fill" id="qaProgressFill" style="width:14.3%"></div></div>
+      </div>
+
+      <div class="qa-step active" data-qastep="1">
+        <div class="qa-title">Koks yra tavo dabartinis pareigų pavadinimas?</div>
+        <p class="qa-hint">Tai padės pritaikyti kitus klausimus tavo sričiai.</p>
+        <input class="field-input" type="text" id="qaTitle" placeholder="pvz., Marketingo specialistas, Buhalteris, Projektų vadovas...">
+      </div>
+
+      <div class="qa-step" data-qastep="2">
+        <div class="qa-title">Kiek metų patirties turi šioje srityje?</div>
+        <button class="qa-card" data-field="experienceRange" data-value="0-1 metai">
+          <div class="qa-card-title">0–1 metai</div>
+          <div class="qa-card-desc">Ką tik pradedu arba studijuoju</div>
+        </button>
+        <button class="qa-card" data-field="experienceRange" data-value="1-3 metai">
+          <div class="qa-card-title">1–3 metai</div>
+          <div class="qa-card-desc">Jaunesnysis specialistas</div>
+        </button>
+        <button class="qa-card" data-field="experienceRange" data-value="3-6 metai">
+          <div class="qa-card-title">3–6 metai</div>
+          <div class="qa-card-desc">Patyręs specialistas</div>
+        </button>
+        <button class="qa-card" data-field="experienceRange" data-value="6+ metai">
+          <div class="qa-card-title">6+ metai</div>
+          <div class="qa-card-desc">Senior / eksperto lygis</div>
+        </button>
+      </div>
+
+      <div class="qa-step" data-qastep="3">
+        <div class="qa-title">Kokios yra tavo dabartinės pareigos?</div>
+        <button class="qa-card" data-field="roleLevel" data-value="Specialistas">
+          <div class="qa-card-title">Specialistas</div>
+          <div class="qa-card-desc">Vykdau užduotis, neturiu pavaldinių</div>
+        </button>
+        <button class="qa-card" data-field="roleLevel" data-value="Komandos / projekto vadovas">
+          <div class="qa-card-title">Komandos / projekto vadovas</div>
+          <div class="qa-card-desc">Vadovauju žmonėms ar projektams</div>
+        </button>
+        <button class="qa-card" data-field="roleLevel" data-value="Įmonės savininkas / direktorius">
+          <div class="qa-card-title">Įmonės savininkas / direktorius</div>
+          <div class="qa-card-desc">Atsakingas už visą verslą</div>
+        </button>
+      </div>
+
+      <div class="qa-step" data-qastep="4">
+        <div class="qa-title">Kurios kompetencijos labiausiai tau tinka?</div>
+        <p class="qa-hint" id="qaCompHint">Pasirink bent 3</p>
+        <div id="qaCompChips">
+          <span class="qa-chip" data-value="Loginis mąstymas">Loginis mąstymas</span>
+          <span class="qa-chip" data-value="Komandos valdymas">Komandos valdymas</span>
+          <span class="qa-chip" data-value="Komandiškumas">Komandiškumas</span>
+          <span class="qa-chip" data-value="Inovatyvumas">Inovatyvumas</span>
+          <span class="qa-chip" data-value="Komunikacija">Komunikacija</span>
+          <span class="qa-chip" data-value="Problemų sprendimas">Problemų sprendimas</span>
+          <span class="qa-chip" data-value="Kūrybiškumas">Kūrybiškumas</span>
+          <span class="qa-chip" data-value="Analitinis mąstymas">Analitinis mąstymas</span>
+          <span class="qa-chip" data-value="Lyderystė">Lyderystė</span>
+          <span class="qa-chip" data-value="Dėmesys detalėms">Dėmesys detalėms</span>
+          <span class="qa-chip" data-value="Prisitaikymas">Prisitaikymas</span>
+          <span class="qa-chip" data-value="Atsakingumas">Atsakingumas</span>
+        </div>
+      </div>
+
+      <div class="qa-step" data-qastep="5">
+        <div class="qa-title">Su kokiais įrankiais dirbi kasdien?</div>
+        <p class="qa-hint">Įrašyk ir spausk Enter, arba pasirink iš populiariausių.</p>
+        <div id="qaToolTags" style="margin-bottom:8px"></div>
+        <input class="field-input" type="text" id="qaToolInput" placeholder="pvz., Excel, SQL, Photoshop..." style="margin-bottom:8px">
+        <div class="qa-group-label">Populiarūs įrankiai</div>
+        <div id="qaToolSuggestions">
+          <span class="qa-chip" data-value="Excel / Sheets">Excel / Sheets</span>
+          <span class="qa-chip" data-value="Power BI">Power BI</span>
+          <span class="qa-chip" data-value="Canva">Canva</span>
+          <span class="qa-chip" data-value="SQL">SQL</span>
+          <span class="qa-chip" data-value="Figma">Figma</span>
+          <span class="qa-chip" data-value="WordPress">WordPress</span>
+          <span class="qa-chip" data-value="Notion">Notion</span>
+          <span class="qa-chip" data-value="Google Analytics">Google Analytics</span>
+          <span class="qa-chip" data-value="Meta Ads Manager">Meta Ads Manager</span>
+          <span class="qa-chip" data-value="Photoshop">Photoshop</span>
+        </div>
+      </div>
+
+      <div class="qa-step" data-qastep="6">
+        <div class="qa-title">Kurie AI įrankiai tau pažįstami?</div>
+        <p class="qa-hint">Pasirink visus tinkamus.</p>
+        <span class="qa-chip" data-value="ChatGPT">ChatGPT</span>
+        <span class="qa-chip" data-value="Gemini">Gemini</span>
+        <span class="qa-chip" data-value="Canva AI">Canva AI</span>
+        <span class="qa-chip" data-value="Midjourney">Midjourney</span>
+        <span class="qa-chip" data-value="Copilot">Copilot</span>
+        <span class="qa-chip" data-value="Make / n8n">Make / n8n</span>
+        <span class="qa-chip" data-value="Claude">Claude</span>
+        <span class="qa-chip" data-value="Nenaudoju AI įrankių" data-none="1">Nenaudoju AI įrankių</span>
+        <div class="qa-group-label">Kitas AI įrankis (neprivaloma)</div>
+        <div id="qaAiToolTags" style="margin-bottom:8px"></div>
+        <input class="field-input" type="text" id="qaAiToolInput" placeholder="pvz., Notion AI, Perplexity, Suno...">
+      </div>
+
+
+      <div class="qa-step" data-qastep="7">
+        <div class="qa-title">Kas labiausiai stabdo tavo augimą šioje srityje?</div>
+        <button class="qa-card" data-field="growthBlocker" data-value="Trūksta techninių įgūdžių">
+          <div class="qa-card-title">Trūksta techninių įgūdžių</div>
+        </button>
+        <button class="qa-card" data-field="growthBlocker" data-value="Nežinau, į kurią pusę krypti">
+          <div class="qa-card-title">Nežinau, į kurią pusę krypti</div>
+        </button>
+        <button class="qa-card" data-field="growthBlocker" data-value="Trūksta pasitikėjimo ar patirties">
+          <div class="qa-card-title">Trūksta pasitikėjimo ar patirties</div>
+        </button>
+        <button class="qa-card" data-field="growthBlocker" data-value="Trūksta laiko mokytis">
+          <div class="qa-card-title">Trūksta laiko mokytis</div>
+        </button>
+      </div>
+
+      <div class="qa-nav">
+        <button class="btn-secondary" id="qaBack" style="visibility:hidden;margin-bottom:0">← Atgal</button>
+        <button class="btn-add" id="qaNext">Toliau →</button>
+      </div>
     </div>
 
-    <p class="privacy-line">🔒 Pateikdami duomenis patvirtinate, kad susipažinote su
-      <a href="https://www.vilniuscoding.lt/privatumo-politika/" target="_blank">Vilnius Coding School privatumo politika</a>.
-    </p>
+    <!-- KONTAKTAI -->
+    <div id="contactFieldsBlock" style="display:none">
+      <div class="form-row">
+        <div>
+          <label class="field-label" for="leadName">Vardas ir pavardė</label>
+          <input class="field-input" type="text" id="leadName" placeholder="Jonas Jonaitis">
+        </div>
+        <div>
+          <label class="field-label" for="leadEmail">El. paštas *</label>
+          <input class="field-input" type="email" id="leadEmail" placeholder="jonas@gmail.com">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="field-label" for="leadPhone">Telefono numeris *</label>
+        <input class="field-input" type="tel" id="leadPhone" placeholder="+370 600 00000" autocomplete="tel">
+        <div id="phoneError" style="display:none;color:#b91c1c;font-size:12px;font-weight:500;margin-top:4px;">Prašome įvesti telefono numerį</div>
+      </div>
 
-    <button class="btn-primary" id="btnAnalyze">
-      Gauti Analizę →
-    </button>
-    <div id="formError" class="err-msg"></div>
+      <p class="privacy-line">🔒 Pateikdami duomenis patvirtinate, kad susipažinote su
+        <a href="https://www.vilniuscoding.lt/privatumo-politika/" target="_blank">Vilnius Coding School privatumo politika</a>.
+      </p>
+
+      <button class="btn-primary" id="btnAnalyze">
+        Gauti Analizę →
+      </button>
+      <div id="formError" class="err-msg"></div>
+    </div>
   </div>
 
   <!-- LOADING -->
@@ -1429,6 +1626,204 @@ function renderTags() {
   });
 }
 
+// ── NO-CV PASIRINKIMAS IR ANKETA ──
+var hasCv = null; // 'yes' | 'no'
+var qaStep = 1;
+var QA_TOTAL = 7;
+var questionnaire = {
+  currentTitle: '',
+  experienceRange: '',
+  roleLevel: '',
+  competencies: [],
+  tools: [],
+  aiTools: [],
+  aiToolsCustom: [],
+  growthBlocker: ''
+};
+
+function selectHasCv(value) {
+  hasCv = value;
+  document.getElementById('choiceYes').classList.toggle('selected', value === 'yes');
+  document.getElementById('choiceNo').classList.toggle('selected', value === 'no');
+  document.getElementById('cvUploadBlock').style.display = value === 'yes' ? 'block' : 'none';
+  document.getElementById('noCvBlock').style.display = value === 'no' ? 'block' : 'none';
+  document.getElementById('contactFieldsBlock').style.display = value === 'yes' ? 'block' : 'none';
+  if (value === 'no') { qaRender(); }
+}
+document.getElementById('choiceYes').addEventListener('click', function() { selectHasCv('yes'); });
+document.getElementById('choiceNo').addEventListener('click', function() { selectHasCv('no'); });
+
+function qaRender() {
+  document.querySelectorAll('.qa-step').forEach(function(s) {
+    s.classList.toggle('active', s.dataset.qastep === String(qaStep));
+  });
+  document.getElementById('qaStepLabel').textContent = qaStep + ' / ' + QA_TOTAL;
+  document.getElementById('qaProgressFill').style.width = (qaStep / QA_TOTAL * 100) + '%';
+  document.getElementById('qaBack').style.visibility = qaStep === 1 ? 'hidden' : 'visible';
+  document.getElementById('qaNext').textContent = qaStep === QA_TOTAL ? 'Tęsti su kontaktais ↓' : 'Toliau →';
+  qaUpdateNextState();
+}
+
+function qaUpdateNextState() {
+  var nextBtn = document.getElementById('qaNext');
+  if (qaStep === 4) {
+    var n = questionnaire.competencies.length;
+    document.getElementById('qaCompHint').textContent = n < 3
+      ? ('Pasirink bent 3 · pasirinkta ' + n + '/3')
+      : ('✓ Pasirinkta ' + n + ' kompetencijos');
+    nextBtn.disabled = n < 3;
+    nextBtn.style.opacity = n < 3 ? '0.5' : '1';
+  } else {
+    nextBtn.disabled = false;
+    nextBtn.style.opacity = '1';
+  }
+}
+
+function qaGo(direction) {
+  if (direction === 1 && qaStep === QA_TOTAL) {
+    var cf = document.getElementById('contactFieldsBlock');
+    cf.style.display = 'block';
+    cf.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
+  var next = qaStep + direction;
+  if (next < 1 || next > QA_TOTAL) return;
+  qaStep = next;
+  qaRender();
+}
+document.getElementById('qaNext').addEventListener('click', function() { qaGo(1); });
+document.getElementById('qaBack').addEventListener('click', function() { qaGo(-1); });
+
+// 1 žingsnis: dabartinis pareigų pavadinimas
+document.getElementById('qaTitle').addEventListener('input', function() {
+  questionnaire.currentTitle = this.value.trim();
+});
+
+// 2, 3, 7 žingsniai: vienas pasirinkimas (kortelės)
+function qaSelectSingle(el) {
+  var field = el.dataset.field;
+  var value = el.dataset.value;
+  questionnaire[field] = value;
+  el.parentElement.querySelectorAll('.qa-card[data-field="' + field + '"]').forEach(function(c) {
+    c.classList.remove('selected');
+  });
+  el.classList.add('selected');
+}
+document.querySelectorAll('.qa-card[data-field]').forEach(function(card) {
+  card.addEventListener('click', function() { qaSelectSingle(card); });
+});
+
+// 4 ir 6 žingsniai: keli pasirinkimai (chips)
+function qaToggleChip(el, field, exclusive) {
+  var value = el.dataset.value;
+  var arr = questionnaire[field];
+  if (exclusive) {
+    el.parentElement.querySelectorAll('.qa-chip').forEach(function(c) { c.classList.remove('selected'); });
+    questionnaire[field] = [value];
+    el.classList.add('selected');
+    if (field === 'aiTools') {
+      questionnaire.aiToolsCustom = [];
+      renderAiToolTags();
+    }
+  } else {
+    var idx = arr.indexOf(value);
+    if (idx > -1) { arr.splice(idx, 1); el.classList.remove('selected'); }
+    else { arr.push(value); el.classList.add('selected'); }
+    var noneChip = el.parentElement.querySelector('.qa-chip[data-none]');
+    if (noneChip && noneChip.classList.contains('selected')) {
+      noneChip.classList.remove('selected');
+      var noneIdx = arr.indexOf(noneChip.dataset.value);
+      if (noneIdx > -1) arr.splice(noneIdx, 1);
+    }
+  }
+  if (qaStep === 4) qaUpdateNextState();
+}
+document.querySelectorAll('#qaCompChips .qa-chip').forEach(function(chip) {
+  chip.addEventListener('click', function() { qaToggleChip(chip, 'competencies', false); });
+});
+document.querySelectorAll('[data-qastep="6"] .qa-chip').forEach(function(chip) {
+  chip.addEventListener('click', function() { qaToggleChip(chip, 'aiTools', !!chip.dataset.none); });
+});
+
+// 5 žingsnis: įrankiai - žymės (tags) + populiarūs pasiūlymai
+function renderToolTags() {
+  var wrap = document.getElementById('qaToolTags');
+  wrap.innerHTML = questionnaire.tools.map(function(t, i) {
+    return '<span class="tag">' + t + '<button class="tag-x" data-i="' + i + '">×</button></span>';
+  }).join('');
+  wrap.querySelectorAll('.tag-x').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var removed = questionnaire.tools[parseInt(btn.dataset.i)];
+      questionnaire.tools.splice(parseInt(btn.dataset.i), 1);
+      renderToolTags();
+      document.querySelectorAll('#qaToolSuggestions .qa-chip').forEach(function(c) {
+        if (c.textContent.trim().toLowerCase() === removed.toLowerCase()) c.classList.remove('selected', 'disabled');
+      });
+    });
+  });
+}
+function qaAddTool(text) {
+  text = (text || '').trim();
+  if (!text) return;
+  var exists = questionnaire.tools.some(function(t) { return t.toLowerCase() === text.toLowerCase(); });
+  if (exists) return;
+  questionnaire.tools.push(text);
+  renderToolTags();
+}
+document.getElementById('qaToolInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    qaAddTool(this.value);
+    this.value = '';
+  }
+});
+document.querySelectorAll('#qaToolSuggestions .qa-chip').forEach(function(chip) {
+  chip.addEventListener('click', function() {
+    if (chip.classList.contains('disabled')) return;
+    qaAddTool(chip.textContent.trim());
+    chip.classList.add('selected', 'disabled');
+  });
+});
+
+// 6 žingsnis: papildomas AI įrankis, įrašytas ranka
+function renderAiToolTags() {
+  var wrap = document.getElementById('qaAiToolTags');
+  wrap.innerHTML = questionnaire.aiToolsCustom.map(function(t, i) {
+    return '<span class="tag">' + t + '<button class="tag-x" data-i="' + i + '">×</button></span>';
+  }).join('');
+  wrap.querySelectorAll('.tag-x').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      questionnaire.aiToolsCustom.splice(parseInt(btn.dataset.i), 1);
+      renderAiToolTags();
+    });
+  });
+}
+function qaAddAiTool(text) {
+  text = (text || '').trim();
+  if (!text) return;
+  var existsInChips = questionnaire.aiTools.some(function(t) { return t.toLowerCase() === text.toLowerCase(); });
+  var existsInCustom = questionnaire.aiToolsCustom.some(function(t) { return t.toLowerCase() === text.toLowerCase(); });
+  if (existsInChips || existsInCustom) return;
+
+  // Jei buvo pažymėtas "Nenaudoju AI įrankių", pridėjus savo įrankį - nuimame šį pasirinkimą
+  var noneIdx = questionnaire.aiTools.indexOf('Nenaudoju AI įrankių');
+  if (noneIdx > -1) {
+    questionnaire.aiTools.splice(noneIdx, 1);
+    var noneChip = document.querySelector('[data-qastep="6"] .qa-chip[data-none]');
+    if (noneChip) noneChip.classList.remove('selected');
+  }
+
+  questionnaire.aiToolsCustom.push(text);
+  renderAiToolTags();
+}
+document.getElementById('qaAiToolInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    qaAddAiTool(this.value);
+    this.value = '';
+  }
+});
+
 // ── STEP 1 → 2 ──
 document.getElementById('btnToStep2').addEventListener('click', function() {
   if (selectedFields.length === 0) {
@@ -1536,12 +1931,22 @@ document.getElementById('cvText').addEventListener('input', function() {
 
 // ── ANALYZE ──
 document.getElementById('btnAnalyze').addEventListener('click', async function() {
-  var cvText = document.getElementById('cvText').value.trim();
   var email = document.getElementById('leadEmail').value.trim();
   var name = document.getElementById('leadName').value.trim();
   var phone = document.getElementById('leadPhone').value.trim();
+  var cvText = '';
 
-  if (!cvText || cvText.length < 30) { showError('Prašome įkelti CV arba įvesti bent 30 simbolių CV tekstą.'); return; }
+  if (hasCv === 'yes') {
+    cvText = document.getElementById('cvText').value.trim();
+    if (!cvText || cvText.length < 30) { showError('Prašome įkelti CV arba įvesti bent 30 simbolių CV tekstą.'); return; }
+  } else if (hasCv === 'no') {
+    if (!questionnaire.currentTitle) { showError('Prašome įrašyti savo dabartines pareigas (1 žingsnis).'); return; }
+    if (questionnaire.competencies.length < 3) { showError('Prašome pasirinkti bent 3 kompetencijas (4 žingsnis).'); return; }
+  } else {
+    showError('Prašome pasirinkti, ar turi CV su savimi.');
+    return;
+  }
+
   if (!email) { showError('Prašome įvesti el. pašto adresą.'); return; }
   if (!phone) { document.getElementById('phoneError').style.display = 'block'; showError('Prašome įvesti telefono numerį.'); return; }
   document.getElementById('phoneError').style.display = 'none';
@@ -1559,17 +1964,25 @@ document.getElementById('btnAnalyze').addEventListener('click', async function()
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
   try {
+    var requestBody = {
+      targetFields: selectedFields,
+      careerGoal: selectedGoal,
+      name: name,
+      email: email,
+      phone: phone
+    };
+    if (hasCv === 'yes') {
+      requestBody.cvText = cvText;
+    } else {
+      requestBody.questionnaire = Object.assign({}, questionnaire, {
+        aiTools: questionnaire.aiTools.concat(questionnaire.aiToolsCustom)
+      });
+    }
+
     var response = await fetch('/api/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        cvText: cvText,
-        targetFields: selectedFields,
-        careerGoal: selectedGoal,
-        name: name,
-        email: email,
-        phone: phone
-      })
+      body: JSON.stringify(requestBody)
     });
     var data = await response.json();
     if (!data.success || !data.analysis) throw new Error(data.error || 'Analizė nepavyko');
@@ -1680,6 +2093,39 @@ document.getElementById('btnRestart').addEventListener('click', function() {
   document.getElementById('selectedTags').innerHTML = '';
   document.getElementById('cvText').value = '';
   document.getElementById('charCount').textContent = '0';
+
+  // Reset CV / no-CV pasirinkimas ir anketa
+  hasCv = null;
+  qaStep = 1;
+  questionnaire = {
+    currentTitle: '',
+    experienceRange: '',
+    roleLevel: '',
+    competencies: [],
+    tools: [],
+    aiTools: [],
+    aiToolsCustom: [],
+    growthBlocker: ''
+  };
+  document.getElementById('choiceYes').classList.remove('selected');
+  document.getElementById('choiceNo').classList.remove('selected');
+  document.getElementById('cvUploadBlock').style.display = 'none';
+  document.getElementById('noCvBlock').style.display = 'none';
+  document.getElementById('contactFieldsBlock').style.display = 'none';
+  document.getElementById('qaTitle').value = '';
+  document.querySelectorAll('.qa-card.selected, .qa-chip.selected').forEach(function(el) {
+    el.classList.remove('selected', 'disabled');
+  });
+  document.getElementById('qaToolTags').innerHTML = '';
+  document.getElementById('qaAiToolTags').innerHTML = '';
+  qaRender();
+
+  var uz = document.getElementById('uploadZone');
+  uz.querySelector('.upload-title').textContent = 'Vilkite failą čia arba spauskite';
+  uz.style.borderColor = '';
+  uz.style.background = '';
+  document.getElementById('fileInput').value = '';
+
   document.getElementById('leadEmail').value = '';
   document.getElementById('leadName').value = '';
   document.getElementById('leadPhone').value = '';
