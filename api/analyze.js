@@ -9,14 +9,31 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { cvText, targetFields, careerGoal, name, email, phone } = req.body;
+    const { cvText, questionnaire, targetFields, careerGoal, name, email, phone } = req.body;
 
     const role = Array.isArray(targetFields) && targetFields.length > 0
       ? targetFields.join(', ')
       : 'IT / technologijų sritis';
 
-    if (!cvText || cvText.length < 30) {
-      return res.status(400).json({ error: 'CV text is too short' });
+    // ── INPUT ŠALTINIS: pilnas CV tekstas ARBA trumpa anketa (kai nėra CV) ──
+    let profileText;
+    let inputSource;
+
+    if (typeof cvText === 'string' && cvText.trim().length >= 30) {
+      profileText = cvText.trim();
+      inputSource = 'cv';
+    } else if (
+      questionnaire &&
+      typeof questionnaire === 'object' &&
+      typeof questionnaire.currentTitle === 'string' &&
+      questionnaire.currentTitle.trim().length > 0
+    ) {
+      profileText = buildProfileFromQuestionnaire(questionnaire, targetFields, careerGoal);
+      inputSource = 'questionnaire';
+    } else {
+      return res.status(400).json({
+        error: 'Nei CV tekstas, nei anketos duomenys nepateikti arba per trumpi. Pateikite CV (min. 30 simbolių) arba užpildytą anketą.'
+      });
     }
 
     const GEMINI_KEY = process.env.GEMINI_API_KEY;
@@ -28,7 +45,7 @@ export default async function handler(req, res) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: buildPrompt(cvText, role) }] }],
+          contents: [{ parts: [{ text: buildPrompt(profileText, role, inputSource) }] }],
           generationConfig: { temperature: 0.7, maxOutputTokens: 8000 }
         })
       }
@@ -65,7 +82,8 @@ export default async function handler(req, res) {
         segment:      careerGoal   || '',
         fields:       role,
         overallScore: analysis.overallScore      ?? '',
-        aiScore:      analysis.aiReadinessScore  ?? ''
+        aiScore:      analysis.aiReadinessScore  ?? '',
+        source:       inputSource
       });
     } catch (sheetsErr) {
       console.error('Sheets error:', sheetsErr.message);
@@ -90,7 +108,8 @@ async function saveToSheets(data) {
 
   const row = [
     data.date, data.name, data.email, data.phone,
-    data.segment, data.fields, data.overallScore, data.aiScore
+    data.segment, data.fields, data.overallScore, data.aiScore,
+    data.source || ''
   ];
 
   console.log('Sheets: appending row...');
@@ -177,14 +196,91 @@ async function createJWT(payload, privateKeyPem) {
   return signingInput + '.' + b64Sig;
 }
 
-function buildPrompt(cvText, role) {
+// ── ANKETOS DUOMENYS → "SINTETINIS CV" TEKSTAS ──
+// Naudojama, kai vartotojas neturi CV su savimi - 7 žingsnių anketos atsakymai
+// paverčiami į trumpą struktūruotą profilį, kuris paduodamas TAI PAČIAI
+// buildPrompt() funkcijai, kaip ir tikras CV tekstas.
+//
+// Tikimasi questionnaire formos:
+// {
+//   currentTitle:    "Pardavimų vadybininkė",          // 1 žingsnis, laisvas tekstas
+//   experienceRange: "1-3 metai",                       // 2 žingsnis
+//   roleLevel:       "Specialistas",                    // 3 žingsnis
+//   competencies:    ["Loginis mąstymas", ...],         // 4 žingsnis, min. 3
+//   tools:           ["Canva", "Google Analytics"],     // 5 žingsnis, tag-input
+//   aiTools:         ["ChatGPT"],                        // 6 žingsnis (arba ["Nenaudoju AI įrankių"])
+//   growthBlocker:   "Nežinau, į kurią pusę krypti"      // 7 žingsnis
+// }
+function buildProfileFromQuestionnaire(q, targetFields, careerGoal) {
+  const lines = [];
+
+  lines.push('Šis profilis sudarytas iš trumpos struktūruotos anketos, kurią užpildė vartotojas, neturėjęs CV su savimi - tai NE pilnas CV dokumentas.');
+  lines.push('');
+
+  if (q.currentTitle) {
+    lines.push(`Dabartinės pareigos: ${q.currentTitle}.`);
+  }
+  if (q.experienceRange) {
+    lines.push(`Patirtis šioje srityje: ${q.experienceRange}.`);
+  }
+  if (q.roleLevel) {
+    lines.push(`Pareigų lygis: ${q.roleLevel}.`);
+  }
+  if (Array.isArray(q.competencies) && q.competencies.length > 0) {
+    lines.push(`Stipriausios kompetencijos (paties nurodytos): ${q.competencies.join(', ')}.`);
+  }
+  if (Array.isArray(q.tools) && q.tools.length > 0) {
+    lines.push(`Kasdien naudojami įrankiai: ${q.tools.join(', ')}.`);
+  }
+  if (Array.isArray(q.aiTools) && q.aiTools.length > 0) {
+    const usesNone = q.aiTools.some(t => /nenaudoju/i.test(t));
+    lines.push(
+      usesNone
+        ? 'AI įrankių šiuo metu darbe nenaudoja.'
+        : `AI įrankiai, kuriuos naudoja: ${q.aiTools.join(', ')}.`
+    );
+  }
+  if (q.growthBlocker) {
+    lines.push(`Pagrindinis augimo stabdys (paties nurodytas): ${q.growthBlocker}.`);
+  }
+
+  lines.push('');
+  if (Array.isArray(targetFields) && targetFields.length > 0) {
+    lines.push(`Tikslinė sritis, kurią norėtų tobulinti: ${targetFields.join(', ')}.`);
+  }
+  if (careerGoal) {
+    lines.push(`Karjeros etapas: ${careerGoal}.`);
+  }
+
+  return lines.join('\n');
+}
+
+function buildPrompt(profileText, role, inputSource) {
+  const isQuestionnaire = inputSource === 'questionnaire';
+
+  const rule1 = isQuestionnaire
+    ? '1. Šis profilis sudarytas iš trumpos struktūruotos anketos (vartotojas neturėjo CV). overallScore turi atspindėti įgūdžių/įrankių/AI-readiness LYGĮ lyginant su tipiniais reikalavimais sričiai, NE teksto kiekį ar "CV kokybę". Trumpumas savaime NĖRA silpnybė.'
+    : '1. Jei CV tekstas tuščias, per trumpas (<50 žodžių) arba neinformatyvus - overallScore TURI būti 0-25. Negalima išgalvoti informacijos.';
+
+  const questionnaireNote = isQuestionnaire
+    ? `
+PAPILDOMA INSTRUKCIJA ŠIAM PROFILIUI:
+Vartotojas neturėjo CV su savimi, todėl atsakė į trumpą struktūruotą anketą. Tai NE trūkumas - nevertink to kaip silpno CV.
+- "weaknesses" skiltyje NERAŠYK pastabų apie CV formatą, struktūrą, aprašymų stilių ar bendrai trūkstamą informaciją, kurios anketa tiesiog nerinko (pvz. NERAŠYK "trūksta pasiekimų aprašymo" ar "CV neturi darbo patirties skilties").
+- Vertink TIK tai, kas faktiškai pateikta: dabartines pareigas, patirties lygį, kompetencijas, įrankius ir AI įrankius - lyginant su tuo, ko paprastai reikia dirbant srityje "${role}".
+- "strengths" ir "missingSkills" turėtų remtis konkrečiais paminėtais įrankiais/kompetencijomis/AI įrankiais, ne spėjimais apie tai, ko CV "neparodė".
+`
+    : '';
+
+  const contentLabel = isQuestionnaire ? 'PROFILIO TURINYS (sudarytas iš anketos)' : 'CV TURINYS';
+
   return `Tu esi griežtas, bet sąžiningas karjeros konsultantas. Tavo tikslas - duoti REALŲ įvertinimą, ne komplimentus.
 
 SVARBIAUSIOS TAISYKLĖS:
-1. Jei CV tekstas tuščias, per trumpas (<50 žodžių) arba neinformatyvus - overallScore TURI būti 0-25. Negalima išgalvoti informacijos.
+${rule1}
 2. Jokių išgalvotų faktų. Jei informacijos nėra - rašyk apie trūkumą, ne apie privalumus.
 3. overallScore: tuščias/silpnas CV = 0-30, vidutinis = 31-60, geras = 61-80, puikus = 81-100.
-
+${questionnaireNote}
 PROFILIŲ LOGIKA:
 
 SILPNAS profilis (0-40 balų, mažai patirties, nori keisti karjerą):
@@ -202,8 +298,8 @@ TUŠČIAS/NEINFORMATYVUS CV:
 
 DOMINANČIOS SRITYS: ${role}
 
-CV TURINYS:
-${cvText}
+${contentLabel}:
+${profileText}
 
 Grąžink TIKTAI JSON objektą (be markdown, be backtickų):
 
