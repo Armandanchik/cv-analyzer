@@ -244,6 +244,12 @@ function buildProfileFromQuestionnaire(q, targetFields, careerGoal) {
     lines.push(`Pagrindinis augimo stabdys (paties nurodytas): ${q.growthBlocker}.`);
   }
 
+  if (q.additionalInfo && q.additionalInfo.trim().length > 0) {
+    lines.push('');
+    lines.push('Papildoma informacija, kurią vartotojas pats įrašė laisvu tekstu (neprivaloma anketos dalis):');
+    lines.push(q.additionalInfo.trim());
+  }
+
   lines.push('');
   if (Array.isArray(targetFields) && targetFields.length > 0) {
     lines.push(`Tikslinė sritis, kurią norėtų tobulinti: ${targetFields.join(', ')}.`);
@@ -259,16 +265,31 @@ function buildPrompt(profileText, role, inputSource) {
   const isQuestionnaire = inputSource === 'questionnaire';
 
   const rule1 = isQuestionnaire
-    ? '1. Šis profilis sudarytas iš trumpos struktūruotos anketos (vartotojas neturėjo CV). overallScore turi atspindėti įgūdžių/įrankių/AI-readiness LYGĮ lyginant su tipiniais reikalavimais sričiai, NE teksto kiekį ar "CV kokybę". Trumpumas savaime NĖRA silpnybė.'
+    ? '1. Šiam profiliui overallScore SKAIČIAVIMAS vyksta pagal formulę, aprašytą žemiau skiltyje "PAPILDOMA INSTRUKCIJA ŠIAM PROFILIUI" - NE pagal bendrą CV pilnumo įspūdį. Gautas skaičius vis tiek atitinka taisyklės Nr.3 ribas (0-30/31-60/61-80/81-100) scoreLabel priskyrimui.'
     : '1. Jei CV tekstas tuščias, per trumpas (<50 žodžių) arba neinformatyvus - overallScore TURI būti 0-25. Negalima išgalvoti informacijos.';
 
   const questionnaireNote = isQuestionnaire
     ? `
 PAPILDOMA INSTRUKCIJA ŠIAM PROFILIUI:
-Vartotojas neturėjo CV su savimi, todėl atsakė į trumpą struktūruotą anketą. Tai NE trūkumas - nevertink to kaip silpno CV.
+Vartotojas neturėjo CV su savimi, todėl atsakė į trumpą struktūruotą anketą. Anketa SAVO PRIGIMTIMI yra trumpa ir negali turėti tiek detalių (konkrečių projektų, datų, kiekybinių rezultatų), kiek pilnas CV - tai NE trūkumas ir NETURI mažinti overallScore.
+
 - "weaknesses" skiltyje NERAŠYK pastabų apie CV formatą, struktūrą, aprašymų stilių ar bendrai trūkstamą informaciją, kurios anketa tiesiog nerinko (pvz. NERAŠYK "trūksta pasiekimų aprašymo" ar "CV neturi darbo patirties skilties").
-- Vertink TIK tai, kas faktiškai pateikta: dabartines pareigas, patirties lygį, kompetencijas, įrankius ir AI įrankius - lyginant su tuo, ko paprastai reikia dirbant srityje "${role}".
-- "strengths" ir "missingSkills" turėtų remtis konkrečiais paminėtais įrankiais/kompetencijomis/AI įrankiais, ne spėjimais apie tai, ko CV "neparodė".
+- "strengths" ir "missingSkills" turėtų remtis konkrečiais paminėtais įrankiais/kompetencijomis/AI įrankiais, lyginant su tuo, ko paprastai reikia dirbant srityje "${role}" - ne spėjimais apie tai, ko anketa "neparodė".
+
+overallScore SKAIČIAVIMO FORMULĖ (naudok ją, NE bendrą CV pilnumo skalę):
+1. BAZINIS BALAS pagal "Patirtis šioje srityje":
+   - 0-1 metai → bazė 30-40
+   - 1-3 metai → bazė 40-55
+   - 3-6 metai → bazė 50-65
+   - 6+ metai → bazė 60-75
+   Jei "Pareigų lygis" yra "Komandos / projekto vadovas" arba "Įmonės savininkas / direktorius" - prie bazės pridėk +5-10.
+2. + BONUSAS (iki +20) pagal tai, kiek nurodytos kompetencijos ir įrankiai yra RELEVANTIŠKI sričiai "${role}": kiekvienas akivaizdžiai tinkantis įrankis ar kompetencija - apie +2-4. Jei nurodyti įrankiai/kompetencijos neturi nieko bendro su "${role}" - bonuso nededi, BET bazės dėl to NEMAŽINI.
+3. + BONUSAS (iki +10) už AI įrankius: naudoja bent 1 sričiai "${role}" tinkamą AI įrankį → +5-10. Jei nurodyta "Nenaudoju AI įrankių" → +0 (tai NE bauda, tiesiog nėra bonuso).
+4. "Pagrindinis augimo stabdys" (paties nurodytas atsakymas) NIEKADA nemažina overallScore - tai savirefleksijos klausimas, naudojamas TIK pasirenkant selfGrowthTips/vcsRecommendations kryptį.
+
+Sudėk (1)+(2)+(3), apvalink iki 100 (negali viršyti 100). Pavyzdys: "1-3 metai", "Specialistas", 3 sričiai relevantiškos kompetencijos, 2-3 relevantiški įrankiai, naudoja 1 AI įrankį → orientacinis rezultatas apie 55-70 (Vidutinis/Geras), NE 20-30.
+
+5. PAPILDOMA INFORMACIJA (laisvas tekstas, neprivaloma anketos dalis): jei profilyje yra skiltis "Papildoma informacija, kurią vartotojas pats įrašė laisvu tekstu" su konkrečiais pasiekimais, projektais ar kiekybiniais rezultatais - GALI pridėti papildomai +5 iki +15 balų prie (1)+(2)+(3) sumos, jei šis turinys realiai rodo aukštesnį lygį, nei numatytų vien struktūrizuoti atsakymai. Naudok šią informaciją ir "strengths" skiltyje. Jei šios skilties NĖRA arba ji bendro pobūdžio (be konkrečių rezultatų) - NEDEDI papildomo bonuso, bet TAI NĖRA bauda.
 `
     : '';
 
