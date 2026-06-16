@@ -6,7 +6,7 @@
 // reiškia, kad realus žmogus pamato klaidą ir greičiausiai nebandys antrą
 // kartą - tad bandome iki 3 kartų su trumpu backoff prieš grąžinant klaidą.
 async function callGeminiWithRetry(prompt, apiKey, maxAttempts = 3) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`;
   const body = JSON.stringify({
     contents: [{ parts: [{ text: prompt }] }],
     generationConfig: { temperature: 0.7, maxOutputTokens: 8000 }
