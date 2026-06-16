@@ -1102,7 +1102,7 @@ body {
     <!-- LEFT: existing content -->
     <div class="hero-left">
       <h1>Sužinok, ar tavo CV<br>atitinka <span class="accent">šiandienos</span><br>rinkos lūkesčius</h1>
-      <p class="hero-desc">Įkelk CV, pasirink sritį. AI išanalizuos turinį pagal realius rinkos standartus ir gausite realius patarimus, ką daryti siekiant tikslo.</p>
+      <p class="hero-desc">Įkelk CV arba atsakyk į kelis klausimus. Gausite ekspertų įvertinimą ir konkrečius patarimus, ką daryti siekiant savo karjeros tikslo.</p>
       <div class="hero-stats">
         <div class="hero-stat">
           <div class="hero-stat-num">30 sek.</div>
@@ -1127,7 +1127,7 @@ body {
         </div>
         <div class="hero-feature-body">
           <div class="hero-feature-title">Tikslus įvertinimas</div>
-          <div class="hero-feature-desc">AI vertina pagal realius rinkos standartus — ne šablonus, o faktinį turinį.</div>
+          <div class="hero-feature-desc">Vertinimas pagal realius rinkos standartus — ne šablonus, o faktinį turinį.</div>
         </div>
       </div>
       <div class="hero-feature-card">
@@ -1136,7 +1136,7 @@ body {
         </div>
         <div class="hero-feature-body">
           <div class="hero-feature-title">Skaitmeninių įgūdžių rodiklis</div>
-          <div class="hero-feature-desc">Sužinok, kiek tavo CV atitinka AI eros darbo rinkos lūkesčius.</div>
+          <div class="hero-feature-desc">Sužinok, kiek tavo profilis atitinka šiandienos darbo rinkos lūkesčius.</div>
         </div>
       </div>
       <div class="hero-feature-card">
@@ -1301,6 +1301,9 @@ body {
 
     <!-- CV ĮKĖLIMAS / TEKSTAS -->
     <div id="cvUploadBlock" style="display:none">
+      <p style="font-size:13px;color:var(--text-3);margin-bottom:14px;display:flex;align-items:center;gap:6px;">
+        🔒 <span>CV turinys naudojamas <strong>tik analizei</strong> — mes jo nesaugome ir niekam neperduodame.</span>
+      </p>
       <div class="upload-zone" id="uploadZone">
         <div class="upload-icon-wrap">📄</div>
         <div class="upload-title">Vilkite failą čia arba spauskite</div>
@@ -1470,7 +1473,7 @@ body {
         <textarea class="field-textarea" id="qaExtraInfo" style="min-height:110px" placeholder="Papasakok plačiau apie save - konkretūs projektai, rezultatai (pvz. padidinau pardavimus 20%, sutvarkiau X procesą), sertifikatai, kalbos, portfolio nuoroda..."></textarea>
       </div>
 
-      <p class="privacy-line">🔒 Pateikdami duomenis patvirtinate, kad susipažinote su
+      <p class="privacy-line">🔒 Jūsų kontaktiniai duomenys naudojami <strong>tik konsultacijos tikslais</strong> ir niekam neperduodami. Pateikdami duomenis patvirtinate, kad susipažinote su
         <a href="https://www.vilniuscoding.lt/privatumo-politika/" target="_blank">Vilnius Coding School privatumo politika</a>.
       </p>
 
@@ -1484,7 +1487,7 @@ body {
   <!-- LOADING -->
   <div class="loading-panel" id="loadingCard">
     <div class="spinner"></div>
-    <div class="loading-title">AI analizuoja tavo CV...</div>
+    <div class="loading-title">Analizuojame tavo profilį...</div>
     <div class="loading-sub">Užtrunka ~15–30 sekundžių</div>
     <div class="loading-steps-list">
       <div class="l-step" id="step1anim"><span class="l-step-icon">›</span> Skaitoma CV struktūra</div>
@@ -1496,6 +1499,11 @@ body {
 
   <!-- RESULTS -->
   <div class="results-area section-panel" id="resultsArea">
+
+    <div class="summary-bar" id="resultsSummaryBar" style="margin-bottom:16px">
+      <span class="summary-bar-label">✓ Pasirinkta:</span>
+      <span id="resultsSummaryTags"></span>
+    </div>
 
     <div class="score-panel">
       <div class="score-ring-wrap">
@@ -2052,6 +2060,13 @@ function showResults(a) {
   ra.style.display = 'block';
   ra.style.animation = 'none'; ra.offsetWidth; ra.style.animation = '';
   scrollToContentTop();
+
+  // Summary bar viršuje rezultatų — primena, kokios sritys pasirinktos
+  var tagsHtml = selectedFields.map(function(f) {
+    return '<span class="summary-bar-tag">' + f + '</span>';
+  }).join('');
+  if (selectedGoal) tagsHtml += '<span class="summary-bar-tag" style="background:#ededfc;color:#3D3FE8;border-color:rgba(61,63,232,0.2)">🎯 ' + selectedGoal + '</span>';
+  document.getElementById('resultsSummaryTags').innerHTML = tagsHtml;
 
   var score = a.overallScore || 0;
   setTimeout(function() {
