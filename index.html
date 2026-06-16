@@ -260,6 +260,49 @@ body {
   .hero-feature-card { flex: none; }
 }
 
+/* ── HERO CTA ── */
+.hero-cta-row {
+  display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+}
+.hero-cta {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--vcs-green); color: var(--vcs-navy);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 16px; font-weight: 700;
+  padding: 17px 38px;
+  border: none; border-radius: 13px;
+  cursor: pointer;
+  transition: transform 0.18s, background 0.18s, box-shadow 0.18s;
+}
+.hero-cta:hover { background: #86efac; transform: translateY(-2px); box-shadow: 0 14px 34px rgba(74,222,128,0.28); }
+.hero-cta svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.hero-cta-note { font-size: 13px; color: rgba(255,255,255,0.45); }
+
+/* ── HERO RESULT PREVIEW ── */
+.hero-result {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 18px;
+  padding: 26px 24px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  width: 100%; max-width: 400px; margin: 0 auto;
+}
+.hero-result-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.hero-result-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+.hero-result-eg { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 600; color: var(--vcs-green); }
+.hero-result-eg .d { width: 6px; height: 6px; border-radius: 50%; background: var(--vcs-green); }
+.hero-ring { position: relative; width: 128px; height: 128px; margin: 0 auto 16px; }
+.hero-ring svg { transform: rotate(-90deg); }
+.hero-ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.hero-ring-num { font-family: 'Space Grotesk', sans-serif; font-size: 38px; font-weight: 800; color: var(--vcs-green); line-height: 1; }
+.hero-ring-max { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 2px; }
+.hero-result-label { text-align: center; font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 18px; }
+.hero-bars { display: flex; flex-direction: column; gap: 12px; }
+.hero-bar-top { display: flex; justify-content: space-between; font-size: 11px; color: rgba(255,255,255,0.55); margin-bottom: 5px; }
+.hero-bar-bg { height: 6px; background: rgba(255,255,255,0.1); border-radius: 100px; overflow: hidden; }
+.hero-bar-fill { height: 100%; border-radius: 100px; }
+
 /* ── PROGRESS STEPS ── */
 .steps-wrap {
   background: var(--surface-2);
@@ -271,12 +314,13 @@ body {
   max-width: 832px; margin: 0 auto;
   padding: 0 56px;
   display: flex; align-items: stretch;
+  justify-content: center; gap: 40px;
 }
 .step-tab {
   display: flex; align-items: center; gap: 10px;
   padding: 16px 0;
   border-bottom: 2px solid transparent;
-  margin-right: 32px;
+  margin-right: 0;
   transition: border-color 0.3s ease;
   cursor: default;
 }
@@ -1055,6 +1099,9 @@ body {
   .topbar { padding: 0 20px; }
   .hero { padding: 60px 20px 56px; }
   .hero-stats { gap: 24px; }
+  .hero-cta-row { flex-direction: column; align-items: stretch; gap: 12px; }
+  .hero-cta { width: 100%; }
+  .hero-cta-note { text-align: center; }
   .steps-wrap { padding: 0 20px; }
   .steps-inner { padding: 0 20px; }
   .main { padding: 32px 20px 80px; }
@@ -1099,53 +1146,45 @@ body {
   <div class="hero-glow"></div>
   <div class="hero-inner">
 
-    <!-- LEFT: existing content -->
+    <!-- LEFT -->
     <div class="hero-left">
-      <h1>Sužinok, ar tavo CV<br>atitinka <span class="accent">šiandienos</span><br>rinkos lūkesčius</h1>
-      <p class="hero-desc">Įkelk CV arba atsakyk į kelis klausimus. Gausite ekspertų įvertinimą ir konkrečius patarimus, ką daryti siekiant savo karjeros tikslo.</p>
-      <div class="hero-stats">
-        <div class="hero-stat">
-          <div class="hero-stat-num">30 sek.</div>
-          <div class="hero-stat-label">Analizės laikas</div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-num">100%</div>
-          <div class="hero-stat-label">Nemokamai</div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-num">Pagal sritį</div>
-          <div class="hero-stat-label">Personalizuota</div>
-        </div>
+      <h1>Sužinok, kiek tavo profilis<br>atitinka <span class="accent">šiandienos rinką</span></h1>
+      <p class="hero-desc">Įkelk savo CV arba atsakyk į kelis klausimus. Gauk asmeninį įvertinimą, įgūdžių žemėlapį, konkretų planą, ką tobulinti toliau per 30 sekundžių.</p>
+      <div class="hero-cta-row">
+        <button class="hero-cta" type="button" onclick="scrollToContentTop()">
+          Pradėti nemokamą analizę
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
       </div>
     </div>
 
-    <!-- RIGHT: design feature blocks -->
+    <!-- RIGHT: result preview -->
     <div class="hero-right">
-      <div class="hero-feature-card">
-        <div class="hero-feature-icon green">
-          <svg viewBox="0 0 24 24" stroke="#4ADE80"><circle cx="12" cy="12" r="9"/><polyline points="9 12 11 14 15 10"/></svg>
+      <div class="hero-result">
+        <div class="hero-result-head">
+          <span class="hero-result-tag">Tavo rezultatas</span>
+          <span class="hero-result-eg"><span class="d"></span>Pavyzdys</span>
         </div>
-        <div class="hero-feature-body">
-          <div class="hero-feature-title">Tikslus įvertinimas</div>
-          <div class="hero-feature-desc">Vertinimas pagal realius rinkos standartus — ne šablonus, o faktinį turinį.</div>
+        <div class="hero-ring">
+          <svg width="128" height="128" viewBox="0 0 128 128">
+            <circle cx="64" cy="64" r="54" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="10"></circle>
+            <circle cx="64" cy="64" r="54" fill="none" stroke="#4ADE80" stroke-width="10" stroke-linecap="round" stroke-dasharray="339" stroke-dashoffset="54"></circle>
+          </svg>
+          <div class="hero-ring-center">
+            <span class="hero-ring-num">84</span>
+            <span class="hero-ring-max">/ 100</span>
+          </div>
         </div>
-      </div>
-      <div class="hero-feature-card">
-        <div class="hero-feature-icon blue">
-          <svg viewBox="0 0 24 24" stroke="#818cf8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
-        </div>
-        <div class="hero-feature-body">
-          <div class="hero-feature-title">Skaitmeninių įgūdžių rodiklis</div>
-          <div class="hero-feature-desc">Sužinok, kiek tavo profilis atitinka šiandienos darbo rinkos lūkesčius.</div>
-        </div>
-      </div>
-      <div class="hero-feature-card">
-        <div class="hero-feature-icon amber">
-          <svg viewBox="0 0 24 24" stroke="rgba(255,255,255,0.7)"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-        </div>
-        <div class="hero-feature-body">
-          <div class="hero-feature-title">Konkretūs patarimai</div>
-          <div class="hero-feature-desc">Gauk veiksmų planą — ką pakeisti, ką pridėti, kur stiprinti.</div>
+        <div class="hero-result-label">Stiprus profilis</div>
+        <div class="hero-bars">
+          <div>
+            <div class="hero-bar-top"><span>Skaitmeniniai įgūdžiai</span><span>78%</span></div>
+            <div class="hero-bar-bg"><div class="hero-bar-fill" style="width:78%;background:#3D3FE8;"></div></div>
+          </div>
+          <div>
+            <div class="hero-bar-top"><span>AI įrankiai</span><span>62%</span></div>
+            <div class="hero-bar-bg"><div class="hero-bar-fill" style="width:62%;background:#4ADE80;"></div></div>
+          </div>
         </div>
       </div>
     </div>
