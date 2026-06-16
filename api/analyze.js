@@ -1,5 +1,39 @@
 // api/analyze.js - Vercel Serverless Function
 
+// ── GEMINI KVIETIMAS SU RETRY ──
+// gemini-2.5-flash-lite kartais grąžina 503 ("model overloaded") arba kitus
+// laikinus errorus net be jokios mūsų kaltės. Vienas nesėkmingas request'as
+// reiškia, kad realus žmogus pamato klaidą ir greičiausiai nebandys antrą
+// kartą - tad bandome iki 3 kartų su trumpu backoff prieš grąžinant klaidą.
+async function callGeminiWithRetry(prompt, apiKey, maxAttempts = 3) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`;
+  const body = JSON.stringify({
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: { temperature: 0.7, maxOutputTokens: 8000 }
+  });
+  const RETRYABLE = new Set([429, 500, 502, 503, 504]);
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body
+    });
+
+    if (resp.ok) return resp;
+
+    const errText = await resp.text();
+
+    if (!RETRYABLE.has(resp.status) || attempt === maxAttempts) {
+      console.error('Gemini error:', resp.status, errText);
+      throw new Error(`Gemini API error: ${resp.status}`);
+    }
+
+    console.warn(`Gemini ${resp.status} (bandymas ${attempt}/${maxAttempts}), bandoma vėl po ${attempt}s...`);
+    await new Promise(r => setTimeout(r, attempt * 1000));
+  }
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -39,24 +73,10 @@ export default async function handler(req, res) {
     const GEMINI_KEY = process.env.GEMINI_API_KEY;
     if (!GEMINI_KEY) return res.status(500).json({ error: 'API key not configured' });
 
-    const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${GEMINI_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: buildPrompt(profileText, role, inputSource) }] }],
-          generationConfig: { temperature: 0.7, maxOutputTokens: 8000 }
-        })
-      }
+    const geminiResponse = await callGeminiWithRetry(
+      buildPrompt(profileText, role, inputSource),
+      GEMINI_KEY
     );
-
-    if (!geminiResponse.ok) {
-      const errText = await geminiResponse.text();
-      console.error('Gemini error:', geminiResponse.status, errText);
-      throw new Error(`Gemini API error: ${geminiResponse.status}`);
-    }
-
     const geminiData = await geminiResponse.json();
     const rawText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!rawText) throw new Error('Empty response from Gemini');
