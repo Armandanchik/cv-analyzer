@@ -94,16 +94,31 @@ export default async function handler(req, res) {
 
     // ── GOOGLE SHEETS ──
     try {
+      // Tobulinimo kryptys — tik pavadinimai (be aprašymų), kad sales matytų trumpai
+      const improvementTitles = (analysis.improvements || [])
+        .map(i => i.title)
+        .filter(Boolean)
+        .join(' | ');
+
+      // Rekomenduojami VCS kursai — tik pavadinimai
+      const courseNames = (analysis.vcsRecommendations || [])
+        .map(r => r.title)
+        .filter(Boolean)
+        .join(' | ');
+
       await saveToSheets({
-        date:         new Date().toLocaleString('lt-LT', { timeZone: 'Europe/Vilnius' }),
-        name:         name         || '',
-        email:        email        || '',
-        phone:        phone        || '',
-        segment:      careerGoal   || '',
-        fields:       role,
-        overallScore: analysis.overallScore      ?? '',
-        aiScore:      analysis.aiReadinessScore  ?? '',
-        source:       inputSource
+        date:               new Date().toLocaleString('lt-LT', { timeZone: 'Europe/Vilnius' }),
+        name:               name              || '',
+        email:              email             || '',
+        phone:              phone             || '',
+        segment:            careerGoal        || '',
+        fields:             role,
+        overallScore:       analysis.overallScore     ?? '',
+        aiScore:            analysis.aiReadinessScore ?? '',
+        source:             inputSource,
+        scoreLabel:         analysis.scoreLabel       || '',
+        improvements:       improvementTitles,
+        courses:            courseNames
       });
     } catch (sheetsErr) {
       console.error('Sheets error:', sheetsErr.message);
@@ -129,7 +144,8 @@ async function saveToSheets(data) {
   const row = [
     data.date, data.name, data.email, data.phone,
     data.segment, data.fields, data.overallScore, data.aiScore,
-    data.source || ''
+    data.source || '', data.scoreLabel || '',
+    data.improvements || '', data.courses || ''
   ];
 
   console.log('Sheets: appending row...');
