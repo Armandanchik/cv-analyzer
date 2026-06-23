@@ -1197,11 +1197,11 @@ body {
   <div class="steps-inner">
     <div class="step-tab active" id="stepTab1">
       <div class="step-num" id="sc1">1</div>
-      <div class="step-name" id="sl1">Sritis &amp; tikslas</div>
+      <div class="step-name" id="sl1">Sritis &amp; kontaktai</div>
     </div>
     <div class="step-tab" id="stepTab2">
       <div class="step-num" id="sc2">2</div>
-      <div class="step-name" id="sl2">CV ir kontaktai</div>
+      <div class="step-name" id="sl2">CV arba anketa</div>
     </div>
     <div class="step-tab" id="stepTab3">
       <div class="step-num" id="sc3">3</div>
@@ -1306,8 +1306,43 @@ body {
       Prašome pasirinkti bent vieną sritį.
     </div>
 
+    <!-- KONTAKTAI (surenkame prieš perėjimą į CV/Anketos žingsnį) -->
+    <div class="form-row" style="margin-bottom:12px">
+      <div>
+        <label class="field-label" for="leadName">Vardas ir pavardė</label>
+        <input class="field-input" type="text" id="leadName" placeholder="Jonas Jonaitis">
+      </div>
+      <div>
+        <label class="field-label" for="leadEmail">El. paštas *</label>
+        <input class="field-input" type="email" id="leadEmail" placeholder="jonas@gmail.com">
+      </div>
+    </div>
+
+    <!-- KONSULTACIJOS KLAUSIMAS -->
+    <div class="goal-section" style="margin-bottom:16px">
+      <div class="goal-label">Nemokama paslauga</div>
+      <div class="goal-question" style="font-size:16px">Ar norėtumėte gauti nemokamą asmeninę karjeros konsultaciją po rezultatų?</div>
+      <div class="goal-options">
+        <button class="goal-option" id="consultYes" onclick="setConsultation(true)">
+          <div class="goal-option-dot"></div>
+          <div class="goal-option-text">Taip, norėčiau konsultacijos</div>
+        </button>
+        <button class="goal-option" id="consultNo" onclick="setConsultation(false)">
+          <div class="goal-option-dot"></div>
+          <div class="goal-option-text">Ne, pakaks analizės rezultatų</div>
+        </button>
+      </div>
+
+      <div id="phoneRevealBlock" style="display:none;margin-top:16px">
+        <label class="field-label" for="leadPhone" style="color:rgba(255,255,255,0.7)">Telefono numeris — paskambinsime susitarti dėl laiko</label>
+        <input class="field-input" type="tel" id="leadPhone" placeholder="+370 600 00000" autocomplete="tel" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);color:#fff;">
+      </div>
+    </div>
+
+    <p class="privacy-line" style="margin-bottom:20px">🔒 Kontaktai naudojami tik konsultacijos tikslais ir niekam neperduodami. Pateikdami patvirtinate, kad susipažinote su <a href="https://www.vilniuscoding.lt/privatumo-politika/" target="_blank">VCS privatumo politika</a>.</p>
+
     <button class="btn-primary" id="btnToStep2">
-      CV Įkėlimas
+      Toliau – įkelti CV arba pildyti anketą
       <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
     </button>
   </div>
@@ -1489,32 +1524,14 @@ body {
       </div>
     </div>
 
-    <!-- KONTAKTAI -->
+    <!-- KONTAKTAI (surinkti step 1) — tik papildoma info ir mygtukas -->
     <div id="contactFieldsBlock" style="display:none">
-      <div class="form-row">
-        <div>
-          <label class="field-label" for="leadName">Vardas ir pavardė</label>
-          <input class="field-input" type="text" id="leadName" placeholder="Jonas Jonaitis">
-        </div>
-        <div>
-          <label class="field-label" for="leadEmail">El. paštas *</label>
-          <input class="field-input" type="email" id="leadEmail" placeholder="jonas@gmail.com">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="field-label" for="leadPhone">Telefono numeris *</label>
-        <input class="field-input" type="tel" id="leadPhone" placeholder="+370 600 00000" autocomplete="tel">
-        <div id="phoneError" style="display:none;color:#b91c1c;font-size:12px;font-weight:500;margin-top:4px;">Prašome įvesti telefono numerį</div>
-      </div>
-
       <div class="form-group" id="qaExtraInfoGroup" style="display:none">
         <label class="field-label" for="qaExtraInfo">Papildoma informacija <span>(neprivaloma)</span></label>
         <textarea class="field-textarea" id="qaExtraInfo" style="min-height:110px" placeholder="Papasakok plačiau apie save - konkretūs projektai, rezultatai (pvz. padidinau pardavimus 20%, sutvarkiau X procesą), sertifikatai, kalbos, portfolio nuoroda..."></textarea>
       </div>
 
-      <p class="privacy-line">🔒 Jūsų kontaktiniai duomenys naudojami <strong>tik konsultacijos tikslais</strong> ir niekam neperduodami. Pateikdami duomenis patvirtinate, kad susipažinote su
-        <a href="https://www.vilniuscoding.lt/privatumo-politika/" target="_blank">Vilnius Coding School privatumo politika</a>.
-      </p>
+      <div id="phoneError" style="display:none;color:#b91c1c;font-size:12px;font-weight:500;margin-top:4px;margin-bottom:8px;">Prašome įvesti el. pašto adresą</div>
 
       <button class="btn-primary" id="btnAnalyze">
         Gauti Analizę →
@@ -1910,19 +1927,45 @@ document.getElementById('qaAiToolInput').addEventListener('keydown', function(e)
   }
 });
 
+// ── KONSULTACIJOS KLAUSIMAS ──
+var wantsConsultation = null;
+
+function setConsultation(value) {
+  wantsConsultation = value;
+  document.getElementById('consultYes').classList.toggle('selected', value === true);
+  document.getElementById('consultNo').classList.toggle('selected', value === false);
+  document.getElementById('phoneRevealBlock').style.display = value ? 'block' : 'none';
+  if (!value) document.getElementById('leadPhone').value = '';
+  track('consultation_answered', { answer: value ? 'yes' : 'no' });
+}
+
 // ── STEP 1 → 2 ──
 document.getElementById('btnToStep2').addEventListener('click', function() {
   if (selectedFields.length === 0) {
     document.getElementById('step1Error').style.display = 'block';
     return;
   }
+  var email = document.getElementById('leadEmail').value.trim();
+  if (!email) {
+    document.getElementById('step1Error').style.display = 'block';
+    document.getElementById('step1Error').textContent = 'Prašome įvesti el. pašto adresą.';
+    return;
+  }
+  document.getElementById('step1Error').style.display = 'none';
+
   track('step1_completed', { fields: selectedFields, careerGoal: selectedGoal });
+  track('contact_submitted', {
+    hasEmail: !!email,
+    wantsConsultation: wantsConsultation,
+    hasPhone: !!document.getElementById('leadPhone').value.trim()
+  });
+
   document.getElementById('step1Section').style.display = 'none';
 
   var s2 = document.getElementById('step2Section');
   s2.classList.remove('slide-back');
   s2.style.display = 'block';
-  void s2.offsetWidth; // reflow to restart animation
+  void s2.offsetWidth;
   s2.style.animation = 'none'; s2.offsetWidth; s2.style.animation = '';
 
   // Summary bar
@@ -2018,6 +2061,7 @@ document.getElementById('cvText').addEventListener('input', function() {
 
 // ── ANALYZE ──
 document.getElementById('btnAnalyze').addEventListener('click', async function() {
+  // Contact info already collected in step 1
   var email = document.getElementById('leadEmail').value.trim();
   var name = document.getElementById('leadName').value.trim();
   var phone = document.getElementById('leadPhone').value.trim();
@@ -2034,8 +2078,6 @@ document.getElementById('btnAnalyze').addEventListener('click', async function()
     return;
   }
 
-  if (!email) { showError('Prašome įvesti el. pašto adresą.'); return; }
-  if (!phone) { document.getElementById('phoneError').style.display = 'block'; showError('Prašome įvesti telefono numerį.'); return; }
   document.getElementById('phoneError').style.display = 'none';
   hideError();
 
@@ -2058,7 +2100,8 @@ document.getElementById('btnAnalyze').addEventListener('click', async function()
       careerGoal: selectedGoal,
       name: name,
       email: email,
-      phone: phone
+      phone: phone,
+      wantsConsultation: wantsConsultation
     };
     if (hasCv === 'yes') {
       requestBody.cvText = cvText;
@@ -2228,6 +2271,10 @@ document.getElementById('btnRestart').addEventListener('click', function() {
   document.getElementById('leadEmail').value = '';
   document.getElementById('leadName').value = '';
   document.getElementById('leadPhone').value = '';
+  wantsConsultation = null;
+  document.getElementById('consultYes').classList.remove('selected');
+  document.getElementById('consultNo').classList.remove('selected');
+  document.getElementById('phoneRevealBlock').style.display = 'none';
   document.getElementById('resultsArea').style.display = 'none';
   var s1 = document.getElementById('step1Section');
   s1.classList.remove('slide-back');
