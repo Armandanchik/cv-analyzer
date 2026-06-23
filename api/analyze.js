@@ -43,7 +43,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { cvText, questionnaire, targetFields, careerGoal, name, email, phone } = req.body;
+    const { cvText, questionnaire, targetFields, careerGoal, name, email, phone, wantsConsultation } = req.body;
 
     const role = Array.isArray(targetFields) && targetFields.length > 0
       ? targetFields.join(', ')
@@ -118,7 +118,8 @@ export default async function handler(req, res) {
         source:             inputSource,
         scoreLabel:         analysis.scoreLabel       || '',
         improvements:       improvementTitles,
-        courses:            courseNames
+        courses:            courseNames,
+        consultation:       wantsConsultation === true ? 'TAIP' : wantsConsultation === false ? 'NE' : ''
       });
     } catch (sheetsErr) {
       console.error('Sheets error:', sheetsErr.message);
@@ -145,7 +146,8 @@ async function saveToSheets(data) {
     data.date, data.name, data.email, data.phone,
     data.segment, data.fields, data.overallScore, data.aiScore,
     data.source || '', data.scoreLabel || '',
-    data.improvements || '', data.courses || ''
+    data.improvements || '', data.courses || '',
+    data.consultation || ''
   ];
 
   console.log('Sheets: appending row...');
