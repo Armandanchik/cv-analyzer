@@ -9,6 +9,8 @@
 const ALLOWED_EVENTS = new Set([
   'landed',
   'step1_completed',
+  'contact_submitted',
+  'consultation_answered',
   'step2_choice_made',
   'submit_clicked'
 ]);
