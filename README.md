@@ -1,7 +1,6 @@
 # CV Analizatorius su AI 🤖
 **Vilnius Coding School – Lead Magnet projektas**
 
-Šis projektas yra puiki vieta mokytis full-stack web development su AI integracijom.
 
 ---
 
